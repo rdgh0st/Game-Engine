@@ -2,58 +2,64 @@
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 
-namespace Lab1;
-
-public class Lab1 : Game
+namespace CPI311.Labs
 {
-    private GraphicsDeviceManager _graphics;
-    private SpriteBatch _spriteBatch;
-    private SpriteFont font;
 
-    public Lab1()
+    public class Lab1 : Game
     {
-        _graphics = new GraphicsDeviceManager(this);
-        Content.RootDirectory = "Content";
-        IsMouseVisible = true;
-    }
+        private GraphicsDeviceManager _graphics;
+        private SpriteBatch _spriteBatch;
+        private SpriteFont font;
 
-    protected override void Initialize()
-    {
-        // TODO: Add your initialization logic here
-        //test
+        public Lab1()
+        {
+            _graphics = new GraphicsDeviceManager(this);
+            Content.RootDirectory = "Content";
+            IsMouseVisible = true;
+        }
 
-        base.Initialize();
-    }
+        protected override void Initialize()
+        {
+            // TODO: Add your initialization logic here
+            //test
 
-    protected override void LoadContent()
-    {
-        _spriteBatch = new SpriteBatch(GraphicsDevice);
-        font = Content.Load<SpriteFont>("Font");
+            base.Initialize();
+        }
 
-        // TODO: use this.Content to load your game content here
-    }
+        protected override void LoadContent()
+        {
+            _spriteBatch = new SpriteBatch(GraphicsDevice);
+            font = Content.Load<SpriteFont>("Font");
 
-    protected override void Update(GameTime gameTime)
-    {
-        if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape))
-            Exit();
+            // TODO: use this.Content to load your game content here
+        }
 
-        // TODO: Add your update logic here
+        protected override void Update(GameTime gameTime)
+        {
+            if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed ||
+                Keyboard.GetState().IsKeyDown(Keys.Escape))
+                Exit();
 
-        base.Update(gameTime);
-    }
+            // TODO: Add your update logic here
 
-    protected override void Draw(GameTime gameTime)
-    {
-        GraphicsDevice.Clear(Color.CornflowerBlue);
-        
-        _spriteBatch.Begin();
-        _spriteBatch.DrawString(font, "Hello World", new Vector2(100, 100), Color.Black);
-        _spriteBatch.End();
+            base.Update(gameTime);
+        }
 
-        // TODO: Add your drawing code here
+        protected override void Draw(GameTime gameTime)
+        {
+            GraphicsDevice.Clear(Color.CornflowerBlue);
 
-        base.Draw(gameTime);
+            _spriteBatch.Begin();
+            _spriteBatch.DrawString(font, "Hello World", new Vector2(100, 100), Color.Black);
+            _spriteBatch.DrawString(font, "test", new Vector2(100, 120), Color.Black);
+            _spriteBatch.DrawString(font, "test", new Vector2(100, 140), Color.Black);
+            _spriteBatch.DrawString(font, "test", new Vector2(100, 160), Color.Black);
+            _spriteBatch.End();
+
+            // TODO: Add your drawing code here
+
+            base.Draw(gameTime);
+        }
     }
 }
 

@@ -1,4 +1,4 @@
 ﻿
-using var game = new Lab1.Lab1();
+using var game = new CPI311.Labs.Lab1();
 game.Run();
 
