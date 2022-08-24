@@ -8,6 +8,7 @@ public class Lab1 : Game
 {
     private GraphicsDeviceManager _graphics;
     private SpriteBatch _spriteBatch;
+    private SpriteFont font;
 
     public Lab1()
     {
@@ -27,6 +28,7 @@ public class Lab1 : Game
     protected override void LoadContent()
     {
         _spriteBatch = new SpriteBatch(GraphicsDevice);
+        font = Content.Load<SpriteFont>("Font");
 
         // TODO: use this.Content to load your game content here
     }
@@ -44,6 +46,10 @@ public class Lab1 : Game
     protected override void Draw(GameTime gameTime)
     {
         GraphicsDevice.Clear(Color.CornflowerBlue);
+        
+        _spriteBatch.Begin();
+        _spriteBatch.DrawString(font, "Hello World", new Vector2(100, 100), Color.Black);
+        _spriteBatch.End();
 
         // TODO: Add your drawing code here
 
