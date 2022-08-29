@@ -10,6 +10,8 @@ namespace CPI311.Labs
         private GraphicsDeviceManager _graphics;
         private SpriteBatch _spriteBatch;
         private SpriteFont font;
+        private Fraction a = new Fraction(3, 4);
+        private Fraction b = new Fraction(8, 3);
 
         public Lab1()
         {
@@ -50,10 +52,10 @@ namespace CPI311.Labs
             GraphicsDevice.Clear(Color.CornflowerBlue);
 
             _spriteBatch.Begin();
-            _spriteBatch.DrawString(font, "Hello World", new Vector2(100, 100), Color.Black);
-            _spriteBatch.DrawString(font, "test", new Vector2(100, 120), Color.Black);
-            _spriteBatch.DrawString(font, "test", new Vector2(100, 140), Color.Black);
-            _spriteBatch.DrawString(font, "test", new Vector2(100, 160), Color.Black);
+            _spriteBatch.DrawString(font, a + " + " + b + " = " + (a + b), new Vector2(100, 100), Color.Black);
+            _spriteBatch.DrawString(font, a + " - " + b + " = " + (a - b), new Vector2(100, 120), Color.Black);
+            _spriteBatch.DrawString(font, a + " * " + b + " = " + (a * b), new Vector2(100, 140), Color.Black);
+            _spriteBatch.DrawString(font, a + " / " + b + " = " + (a / b), new Vector2(100, 160), Color.Black);
             _spriteBatch.End();
 
             // TODO: Add your drawing code here
