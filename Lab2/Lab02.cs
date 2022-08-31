@@ -21,6 +21,7 @@ public class Lab02 : Game
     protected override void Initialize()
     {
         InputManager.Initialize();
+        Time.Initialize();
         base.Initialize();
     }
 
@@ -34,7 +35,8 @@ public class Lab02 : Game
     {
         if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape))
             Exit();
-
+        
+        Time.Update(gameTime);
         InputManager.Update();
         if(InputManager.IsKeyDown(Keys.Left)) _sprite.Position += Vector2.UnitX * -5;
         if(InputManager.IsKeyDown(Keys.Right)) _sprite.Position += Vector2.UnitX * 5;
