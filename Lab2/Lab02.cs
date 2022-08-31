@@ -1,15 +1,17 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
+using CPI311.GameEngine;
 
 namespace Lab2;
 
-public class Game1 : Game
+public class Lab02 : Game
 {
     private GraphicsDeviceManager _graphics;
     private SpriteBatch _spriteBatch;
+    private Sprite _sprite;
 
-    public Game1()
+    public Lab02()
     {
         _graphics = new GraphicsDeviceManager(this);
         Content.RootDirectory = "Content";
@@ -18,16 +20,14 @@ public class Game1 : Game
 
     protected override void Initialize()
     {
-        // TODO: Add your initialization logic here
-
+        InputManager.Initialize();
         base.Initialize();
     }
 
     protected override void LoadContent()
     {
         _spriteBatch = new SpriteBatch(GraphicsDevice);
-
-        // TODO: use this.Content to load your game content here
+        _sprite = new Sprite(Content.Load<Texture2D>("Square"));
     }
 
     protected override void Update(GameTime gameTime)
@@ -35,7 +35,12 @@ public class Game1 : Game
         if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape))
             Exit();
 
-        // TODO: Add your update logic here
+        InputManager.Update();
+        if(InputManager.IsKeyDown(Keys.Left)) _sprite.Position += Vector2.UnitX * -5;
+        if(InputManager.IsKeyDown(Keys.Right)) _sprite.Position += Vector2.UnitX * 5;
+        if(InputManager.IsKeyDown(Keys.Up)) _sprite.Position += Vector2.UnitY * -5;
+        if(InputManager.IsKeyDown(Keys.Down)) _sprite.Position += Vector2.UnitY * 5;
+        if(InputManager.IsKeyDown(Keys.Space)) _sprite.Rotation += 0.05f;
 
         base.Update(gameTime);
     }
@@ -44,7 +49,9 @@ public class Game1 : Game
     {
         GraphicsDevice.Clear(Color.CornflowerBlue);
 
-        // TODO: Add your drawing code here
+        _spriteBatch.Begin();
+        _sprite.Draw(_spriteBatch);
+        _spriteBatch.End();
 
         base.Draw(gameTime);
     }
