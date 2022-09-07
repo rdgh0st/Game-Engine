@@ -36,7 +36,14 @@ public class Lab03 : Game
         _spriteBatch = new SpriteBatch(GraphicsDevice);
 
         model = Content.Load<Model>("Torus");
-
+        foreach (ModelMesh mesh in model.Meshes)
+        {
+            foreach (BasicEffect effect in mesh.Effects)
+            {
+                effect.EnableDefaultLighting();
+                effect.PreferPerPixelLighting = true;
+            }
+        }
 
     }
 
