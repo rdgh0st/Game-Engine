@@ -13,6 +13,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GameEngine", "GameEngine\Ga
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Lab3", "Lab3\Lab3.csproj", "{07293A0A-E275-4B23-B84A-C8F21CDE67BB}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Lab4", "Lab4\Lab4.csproj", "{AEB6CB26-4733-4BBB-9FC1-FC17B313F80B}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -39,6 +41,10 @@ Global
 		{07293A0A-E275-4B23-B84A-C8F21CDE67BB}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{07293A0A-E275-4B23-B84A-C8F21CDE67BB}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{07293A0A-E275-4B23-B84A-C8F21CDE67BB}.Release|Any CPU.Build.0 = Release|Any CPU
+		{AEB6CB26-4733-4BBB-9FC1-FC17B313F80B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{AEB6CB26-4733-4BBB-9FC1-FC17B313F80B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{AEB6CB26-4733-4BBB-9FC1-FC17B313F80B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{AEB6CB26-4733-4BBB-9FC1-FC17B313F80B}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
