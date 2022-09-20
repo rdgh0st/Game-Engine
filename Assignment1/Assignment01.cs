@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
@@ -19,8 +20,17 @@ public class Assignment01 : Game
     private AnimatedSprite spriteUp;
     private AnimatedSprite spriteLeft;
     private AnimatedSprite spriteRight;
+    private ProgressBar timeBar;
+    private ProgressBar walkBar;
     private float timer;
-    private float speed = 10f;
+    private float speed = 2f;
+    private Vector2 mousePos;
+    private const float maxTime = 10f;
+    private float timeLeft = 10f;
+    private Vector2 previousPos;
+    private float distanceTravelled;
+    private Sprite bonusSprite;
+    private Random _random = new Random();
 
     public Assignment01()
     {
@@ -87,6 +97,18 @@ public class Assignment01 : Game
 
         activeSprite = spriteDown;
         activeSprite.Position = new Vector2(GraphicsDevice.Viewport.Width / 2, GraphicsDevice.Viewport.Height / 2);
+        mousePos = activeSprite.Position;
+        previousPos = activeSprite.Position;
+
+        timeBar = new ProgressBar(Content.Load<Texture2D>("Square"), Color.Red);
+        walkBar = new ProgressBar(Content.Load<Texture2D>("Square"), Color.Green);
+        timeBar.Position = new Vector2(50, 50);
+        walkBar.Position = new Vector2(200, 50);
+
+        bonusSprite = new Sprite(Content.Load<Texture2D>("Square"));
+        bonusSprite.Scale = new Vector2(0.5f, 0.5f);
+        bonusSprite.Position = new Vector2(_random.Next(0, GraphicsDevice.Viewport.Width),
+            _random.Next(0, GraphicsDevice.Viewport.Height));
     }
 
     protected override void Update(GameTime gameTime)
@@ -97,7 +119,27 @@ public class Assignment01 : Game
         Time.Update(gameTime);
         InputManager.Update();
         timer += Time.ElapsedGameTime;
+        timeLeft -= Time.ElapsedGameTime;
 
+        if (InputManager.isMouseLeftClicked())
+        {
+            mousePos = InputManager.getMouseState().Position.ToVector2();
+        }
+        // get mouse position
+        // if moving, lerp to mouse position
+        // on arrival, stop moving
+        activeSprite.Position = Vector2.Lerp(activeSprite.Position, mousePos, speed * Time.ElapsedGameTime);
+        timeBar.setProgressScale(timeLeft / maxTime);
+        distanceTravelled += Vector2.Distance(previousPos, activeSprite.Position);
+        walkBar.setProgressScale(distanceTravelled / 10000f);
+
+        if (Vector2.Distance(activeSprite.Position, bonusSprite.Position) < 25)
+        {
+            bonusSprite.Position = new Vector2(_random.Next(0, GraphicsDevice.Viewport.Width),
+                _random.Next(0, GraphicsDevice.Viewport.Height));
+            timeLeft += 1.5f;
+        }
+        
         if (InputManager.IsKeyDown(Keys.W))
         {
             
@@ -140,6 +182,7 @@ public class Assignment01 : Game
             activeSprite.Update();
         }
 
+        previousPos = activeSprite.Position;
         base.Update(gameTime);
     }
 
@@ -149,6 +192,9 @@ public class Assignment01 : Game
 
         _spriteBatch.Begin();
         activeSprite.Draw(_spriteBatch);
+        timeBar.Draw(_spriteBatch);
+        walkBar.Draw(_spriteBatch);
+        bonusSprite.Draw(_spriteBatch);
         _spriteBatch.End();
 
         base.Draw(gameTime);

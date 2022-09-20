@@ -33,5 +33,16 @@ public static class InputManager
         return CurrentKeyboardState.IsKeyDown(key) &&
                PreviousKeyboardState.IsKeyUp(key);
     }
+
+    public static bool isMouseLeftClicked()
+    {
+        return CurrentMouseState.LeftButton == ButtonState.Pressed &&
+               PreviousMouseState.LeftButton == ButtonState.Released;
+    }
+
+    public static MouseState getMouseState()
+    {
+        return CurrentMouseState;
+    }
     
 }
