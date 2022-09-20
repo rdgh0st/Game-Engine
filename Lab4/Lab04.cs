@@ -89,11 +89,11 @@ public class Lab04 : Game
         if(InputManager.IsKeyDown(Keys.Down))
             parentTransform.LocalPosition += cameraTransform.Down * Time.ElapsedGameTime;
         if(InputManager.IsKeyDown(Keys.Left))
-            parentTransform.LocalPosition += cameraTransform.Left * Time.ElapsedGameTime;
+            parentTransform.Rotate(Vector3.Up, -Time.ElapsedGameTime);
         if(InputManager.IsKeyDown(Keys.Right))
-            parentTransform.LocalPosition += cameraTransform.Right * Time.ElapsedGameTime;
+            parentTransform.Rotate(Vector3.Up, Time.ElapsedGameTime);
         
-        parentTransform.Rotate(Vector3.Up, Time.ElapsedGameTime);
+        
 
         base.Update(gameTime);
     }
