@@ -23,10 +23,10 @@ public class Assignment01 : Game
     private ProgressBar timeBar;
     private ProgressBar walkBar;
     private float timer;
-    private float speed = 2f;
+    private float speed = 100f;
     private Vector2 mousePos;
-    private const float maxTime = 10f;
-    private float timeLeft = 10f;
+    private const float maxTime = 30f;
+    private float timeLeft = 30f;
     private Vector2 previousPos;
     private float distanceTravelled;
     private Sprite bonusSprite;
@@ -136,6 +136,7 @@ public class Assignment01 : Game
             gameOver = true;
         }
 
+        /*
         if (InputManager.isMouseLeftClicked())
         {
             mousePos = InputManager.getMouseState().Position.ToVector2();
@@ -144,6 +145,60 @@ public class Assignment01 : Game
         // if moving, lerp to mouse position
         // on arrival, stop moving
         activeSprite.Position = Vector2.Lerp(activeSprite.Position, mousePos, speed * Time.ElapsedGameTime);
+        */
+
+        if (InputManager.IsKeyPressed(Keys.Left))
+        {
+            if (activeSprite == spriteDown)
+            {
+                activeSprite = spriteRight;
+            }
+            else if (activeSprite == spriteUp)
+            {
+                activeSprite = spriteLeft;
+            } else if (activeSprite == spriteLeft)
+            {
+                activeSprite = spriteDown;
+            } else if (activeSprite == spriteRight)
+            {
+                activeSprite = spriteUp;
+            }
+        }
+        if (InputManager.IsKeyPressed(Keys.Right))
+        {
+            if (activeSprite == spriteDown)
+            {
+                activeSprite = spriteLeft;
+            }
+            else if (activeSprite == spriteUp)
+            {
+                activeSprite = spriteRight;
+            } else if (activeSprite == spriteLeft)
+            {
+                activeSprite = spriteUp;
+            } else if (activeSprite == spriteRight)
+            {
+                activeSprite = spriteDown;
+            }
+        }
+        if (InputManager.IsKeyDown(Keys.Up))
+        {
+            if (activeSprite == spriteDown)
+            {
+                activeSprite.Position += new Vector2(0, speed * Time.ElapsedGameTime);
+            }
+            else if (activeSprite == spriteUp)
+            {
+                activeSprite.Position += new Vector2(0, speed * -Time.ElapsedGameTime);
+            } else if (activeSprite == spriteLeft)
+            {
+                activeSprite.Position += new Vector2(speed * -Time.ElapsedGameTime, 0);
+            } else if (activeSprite == spriteRight)
+            {
+                activeSprite.Position += new Vector2(speed * Time.ElapsedGameTime, 0);
+            }
+        }
+        
         timeBar.setProgressScale(timeLeft / maxTime);
         distanceTravelled += Vector2.Distance(previousPos, activeSprite.Position);
         walkBar.setProgressScale(distanceTravelled / 10000f);
@@ -152,9 +207,10 @@ public class Assignment01 : Game
         {
             bonusSprite.Position = new Vector2(_random.Next(0, GraphicsDevice.Viewport.Width),
                 _random.Next(0, GraphicsDevice.Viewport.Height));
-            timeLeft += 1.5f;
+            timeLeft += 3f;
         }
 
+        /*
         Vector2 currentDirection = Vector2.Normalize(activeSprite.Position - previousPos);
         //Console.WriteLine(currentDirection.ToString());
         if (Math.Abs(currentDirection.X) > Math.Abs(currentDirection.Y))
@@ -163,12 +219,10 @@ public class Assignment01 : Game
             if (currentDirection.X > 0)
             {
                 activeSprite = spriteRight;
-                //activeSprite.Position = currentPosition;
             }
             else
             {
                 activeSprite = spriteLeft;
-                //activeSprite.Position = currentPosition;
             }
         }
         else
@@ -177,14 +231,12 @@ public class Assignment01 : Game
             if (currentDirection.Y > 0)
             {
                 activeSprite = spriteDown;
-                //activeSprite.Position = currentPosition;
             }
             else
             {
                 activeSprite = spriteUp;
-                //activeSprite.Position = currentPosition;
             }
-        }
+        } */
 
         if (timer > 0.05f)
         {
