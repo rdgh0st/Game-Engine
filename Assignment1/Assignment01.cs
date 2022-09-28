@@ -33,6 +33,7 @@ public class Assignment01 : Game
     private Random _random = new Random();
     private bool gameOver = false;
     private SpriteFont font;
+    private string endString = "GAME OVER";
 
     public Assignment01()
     {
@@ -136,17 +137,6 @@ public class Assignment01 : Game
             gameOver = true;
         }
 
-        /*
-        if (InputManager.isMouseLeftClicked())
-        {
-            mousePos = InputManager.getMouseState().Position.ToVector2();
-        }
-        // get mouse position
-        // if moving, lerp to mouse position
-        // on arrival, stop moving
-        activeSprite.Position = Vector2.Lerp(activeSprite.Position, mousePos, speed * Time.ElapsedGameTime);
-        */
-
         if (InputManager.IsKeyPressed(Keys.Left))
         {
             if (activeSprite == spriteDown)
@@ -183,6 +173,11 @@ public class Assignment01 : Game
         }
         if (InputManager.IsKeyDown(Keys.Up))
         {
+            if (timer > 0.05f)
+            {
+                timer = 0f;
+                activeSprite.Update();
+            }
             if (activeSprite == spriteDown)
             {
                 activeSprite.Position += new Vector2(0, speed * Time.ElapsedGameTime);
@@ -203,45 +198,17 @@ public class Assignment01 : Game
         distanceTravelled += Vector2.Distance(previousPos, activeSprite.Position);
         walkBar.setProgressScale(distanceTravelled / 10000f);
 
+        if (distanceTravelled >= 10000f)
+        {
+            endString = "YOU WIN";
+            gameOver = true;
+        }
+
         if (Vector2.Distance(activeSprite.Position, bonusSprite.Position) < 25)
         {
             bonusSprite.Position = new Vector2(_random.Next(0, GraphicsDevice.Viewport.Width),
                 _random.Next(0, GraphicsDevice.Viewport.Height));
             timeLeft += 3f;
-        }
-
-        /*
-        Vector2 currentDirection = Vector2.Normalize(activeSprite.Position - previousPos);
-        //Console.WriteLine(currentDirection.ToString());
-        if (Math.Abs(currentDirection.X) > Math.Abs(currentDirection.Y))
-        {
-            //moving more horizontal
-            if (currentDirection.X > 0)
-            {
-                activeSprite = spriteRight;
-            }
-            else
-            {
-                activeSprite = spriteLeft;
-            }
-        }
-        else
-        {
-            // moving more vertical
-            if (currentDirection.Y > 0)
-            {
-                activeSprite = spriteDown;
-            }
-            else
-            {
-                activeSprite = spriteUp;
-            }
-        } */
-
-        if (timer > 0.05f)
-        {
-            timer = 0f;
-            activeSprite.Update();
         }
 
         previousPos = activeSprite.Position;
@@ -259,7 +226,7 @@ public class Assignment01 : Game
         bonusSprite.Draw(_spriteBatch);
         _spriteBatch.DrawString(font, "Time Remaining:", new Vector2(timeBar.Position.X - 25, timeBar.Position.Y - 20), Color.White);
         _spriteBatch.DrawString(font, "Distance Travelled:", new Vector2(walkBar.Position.X - 30, timeBar.Position.Y - 20), Color.White);
-        if (gameOver) _spriteBatch.DrawString(font, "GAME OVER", new Vector2(GraphicsDevice.Viewport.Width / 2, GraphicsDevice.Viewport.Height / 2), Color.White);
+        if (gameOver) _spriteBatch.DrawString(font, endString, new Vector2(GraphicsDevice.Viewport.Width / 2, GraphicsDevice.Viewport.Height / 2), Color.White);
         _spriteBatch.End();
 
         base.Draw(gameTime);
