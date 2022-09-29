@@ -42,7 +42,7 @@ public class BoxCollider : Collider
                         
                     if (d < collider.Radius)
                     {
-                        Vector3 pointOnPlane = p + d * n;  // p + d * n
+                        Vector3 pointOnPlane = p - n * d;  // p + d * n
                         // ab = A, bc = B, ca = C
                         float area1 = Vector3.Dot(Vector3.Normalize(Vector3.Cross(b - a, pointOnPlane - a)), n); // A cross aq
                         float area2 = Vector3.Dot(Vector3.Normalize(Vector3.Cross(c - b, pointOnPlane - b)), n); // B cross bq
