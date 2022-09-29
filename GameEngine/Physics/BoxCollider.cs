@@ -27,6 +27,7 @@ public class BoxCollider : Collider
             SphereCollider collider = other as SphereCollider;
             normal = Vector3.Zero; // no collision
             bool isColliding = false;
+            Vector3 p = collider.Transform.Position;
                 
             for (int i = 0; i < 6; i++)
             {        
@@ -37,14 +38,15 @@ public class BoxCollider : Collider
                     Vector3 b = vertices[indices[baseIndex + 1]] * Size;
                     Vector3 c = vertices[indices[baseIndex + 2]] * Size;
                     Vector3 n = normals[i];
-                    float d = Math.Abs(  );// dot(aP, n) = d < r
+                    float d = Math.Abs(Vector3.Dot((p - a), n));// (dot(aP, n) = d)
                         
-                    if (d < collider.Radius) 
+                    if (d < collider.Radius)
                     {
-                        Vector3 pointOnPlane = ???  // p + d * n
-                        float area1 = ??? // A cross aQ
-                        float area2 = ??? // B cross bQ
-                        float area3 = ??? // C cross cQ
+                        Vector3 pointOnPlane = p + d * n;  // p + d * n
+                        // ab = A, bc = B, ca = C
+                        float area1 = Vector3.Dot(Vector3.Normalize(Vector3.Cross(b - a, pointOnPlane - a)), n); // A cross aq
+                        float area2 = Vector3.Dot(Vector3.Normalize(Vector3.Cross(c - b, pointOnPlane - b)), n); // B cross bq
+                        float area3 = Vector3.Dot(Vector3.Normalize(Vector3.Cross(a - c, pointOnPlane - c)), n); // C cross cq
                         if (!(area1 < 0 || area2 < 0 || area3 < 0))
                         {
                             normal += n;
