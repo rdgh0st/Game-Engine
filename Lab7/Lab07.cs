@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Threading;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
@@ -24,6 +25,8 @@ public class Lab07 : Game
     Camera camera;
     Transform cameraTransform;
     Model model;
+    bool haveThreadRunning = false;
+    int lastSecondCollision = 0;
 
     public Lab07()
     {
@@ -52,6 +55,7 @@ public class Lab07 : Game
         cameraTransform.LocalPosition = Vector3.Backward * 20;
         camera = new Camera();
         camera.Transform = cameraTransform;
+        ThreadPool.QueueUserWorkItem(new WaitCallback(CollisionReset));
         base.Initialize();
     }
 
@@ -131,9 +135,14 @@ public class Lab07 : Game
         rigidbodies.Add(rigidbody);
     }
 
-    private void ThreadMethod(Object obj)
+    private void CollisionReset(Object obj)
     {
-        
+        while (haveThreadRunning)
+        {
+            lastSecondCollision = (int) numberCollisions;
+            numberCollisions = 0;
+            System.Threading.Thread.Sleep(1000);
+        }
     }
 }
 
