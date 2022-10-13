@@ -45,4 +45,9 @@ public static class InputManager
         return CurrentMouseState;
     }
     
+    public static MouseState getPrevMouseState()
+    {
+        return PreviousMouseState;
+    }
+    
 }

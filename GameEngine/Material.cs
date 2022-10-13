@@ -45,6 +45,7 @@ public class Material
         effect.Parameters["AmbientColor"].SetValue(Ambient);
         effect.Parameters["DiffuseColor"].SetValue(Diffuse);
         effect.Parameters["SpecularColor"].SetValue(Specular);
+        effect.Parameters["DiffuseTexture"].SetValue(Texture);
         effect.CurrentTechnique.Passes[currentPass].Apply();
     }
 }
