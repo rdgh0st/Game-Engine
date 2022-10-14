@@ -23,6 +23,7 @@ public class Assignment02 : Game
     Transform cameraTransform, fpsTransform, mercuryTransform, earthTransform, moonTransform, planeTransform;
     Model sunModel, mercuryModel, earthModel, moonModel, planeModel;
     Texture2D sunTex, mercuryTex, earthTex, moonTex;
+    SpriteFont font;
     float animSpeed = 1;
 
     public Assignment02()
@@ -92,6 +93,7 @@ public class Assignment02 : Game
         mercuryTex = Content.Load<Texture2D>("mercury");
         earthTex = Content.Load<Texture2D>("earth");
         moonTex = Content.Load<Texture2D>("moon");
+        font = Content.Load<SpriteFont>("font");
         sunRenderer = new Renderer(sunModel, sunTransform, defaultCamera, Content, GraphicsDevice, light, "Shader", 1, 20, sunTex);
         mercuryRenderer = new Renderer(mercuryModel, mercuryTransform, defaultCamera, Content, GraphicsDevice, light, "Shader", 1, 20,
             mercuryTex);
@@ -102,11 +104,11 @@ public class Assignment02 : Game
         planeRenderer = new Renderer(sunModel, fpsTransform, defaultCamera, Content, GraphicsDevice, light,
             "Shader", 2, 20,
             null);
-        renderers.Add(sunRenderer);
-        renderers.Add(mercuryRenderer);
+        renderers.Add(moonRenderer);
         renderers.Add(earthRenderer);
-        renderers.Add(moonRenderer); 
-        renderers.Add(planeRenderer);
+        renderers.Add(mercuryRenderer);
+        renderers.Add(sunRenderer); 
+        //renderers.Add(planeRenderer);
     }
 
     protected override void Update(GameTime gameTime)
@@ -223,10 +225,26 @@ public class Assignment02 : Game
     protected override void Draw(GameTime gameTime)
     {
         GraphicsDevice.Clear(Color.CornflowerBlue);
-
-        for (int i= 0; i<renderers.Count; i++) renderers[i].Draw();
-
+        
         planeModel.Draw(planeTransform.World, renderers[0].Camera.View, renderers[0].Camera.Projection);
+
+        if (earthTransform.Position.Z > sunTransform.Position.Z ||
+            mercuryTransform.Position.Z > sunTransform.Position.Z)
+        {
+            for (int i = renderers.Count - 1; i >= 0; i--) renderers[i].Draw();
+        }
+        else
+        {
+            for (int i = 0; i < renderers.Count; i++) renderers[i].Draw();
+        }
+
+        _spriteBatch.Begin();
+        _spriteBatch.DrawString(font, "Change Zoom: O/P", new Vector2(50, 50), Color.White);
+        _spriteBatch.DrawString(font, "Change Speed: +/-", new Vector2(50, 70), Color.White);
+        _spriteBatch.DrawString(font, "Change Camera: Tab", new Vector2(50, 90), Color.White);
+        _spriteBatch.DrawString(font, "Look: Arrow Keys or Mouse", new Vector2(50, 110), Color.White);
+        _spriteBatch.DrawString(font, "Move: WASD or Left Click", new Vector2(50, 130), Color.White);
+        _spriteBatch.End();
 
         base.Draw(gameTime);
     }
