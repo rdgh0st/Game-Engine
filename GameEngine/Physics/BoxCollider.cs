@@ -62,4 +62,13 @@ public class BoxCollider : Collider
         }
         return base.Collides(other, out normal);
     }
+    public override float? Intersects (Ray ray)
+    {
+        Matrix worldInv = Matrix.Invert(Transform.World);
+        ray.Position = Vector3.Transform(ray.Position, worldInv);
+        ray.Direction = Vector3.TransformNormal (ray.Direction,
+            worldInv);
+        return new BoundingBox(-Vector3.One*Size, Vector3.One*Size).
+            Intersects(ray);
+    }
 }

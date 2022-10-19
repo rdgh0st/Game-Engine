@@ -1,3 +1,4 @@
+using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Input;
 
 namespace CPI311.GameEngine;
@@ -49,5 +50,8 @@ public static class InputManager
     {
         return PreviousMouseState;
     }
+    
+    public static Vector2 GetMousePosition() { 
+        return new Vector2(CurrentMouseState.X, CurrentMouseState.Y); }
     
 }

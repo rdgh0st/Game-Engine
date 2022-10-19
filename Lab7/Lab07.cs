@@ -21,11 +21,11 @@ public class Lab07 : Game
     List<Collider> colliders;
     List<Renderer> renderers;
     Light light;
-    float numberCollisions;
+    int numberCollisions;
     Camera camera;
     Transform cameraTransform;
     Model model;
-    bool haveThreadRunning = false;
+    bool haveThreadRunning = true;
     int lastSecondCollision = 0;
 
     public Lab07()
@@ -104,7 +104,20 @@ public class Lab07 : Game
     {
         GraphicsDevice.Clear(Color.CornflowerBlue);
 
+        for (int i = 0; i < transforms.Count; i++ )
+        {
+            Transform transform = transforms[i];
+            float speed = rigidbodies[i].Velocity.Length();
+            float speedValue = MathHelper.Clamp(speed / 20f, 0, 1);
+            (model.Meshes[0].Effects[0] as BasicEffect).DiffuseColor = 
+                new Vector3(speedValue, speedValue, 1);
+            model.Draw(transform.World, camera.View, camera.Projection);
+        }
         for (int i= 0; i<renderers.Count; i++) renderers[i].Draw();
+        
+        _spriteBatch.Begin();
+        _spriteBatch.DrawString(Content.Load<SpriteFont>("font"), "Collisions: " + lastSecondCollision, new Vector2(50, 50), Color.White);
+        _spriteBatch.End();
 
         base.Draw(gameTime);
     }
@@ -139,7 +152,7 @@ public class Lab07 : Game
     {
         while (haveThreadRunning)
         {
-            lastSecondCollision = (int) numberCollisions;
+            lastSecondCollision = numberCollisions;
             numberCollisions = 0;
             System.Threading.Thread.Sleep(1000);
         }

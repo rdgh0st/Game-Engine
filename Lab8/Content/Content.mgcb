@@ -13,12 +13,11 @@
 
 #---------------------------------- Content ---------------------------------#
 
-#begin font.spritefont
-/importer:FontDescriptionImporter
-/processor:FontDescriptionProcessor
-/processorParam:PremultiplyAlpha=True
-/processorParam:TextureFormat=Compressed
-/build:font.spritefont
+#begin Gun.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:Gun.wav
 
 #begin Shader.fx
 /importer:EffectImporter

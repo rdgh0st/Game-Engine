@@ -9,4 +9,9 @@ public class Collider : Component
         normal = Vector3.Zero;
         return false;
     }
+
+    public virtual float? Intersects(Ray ray)
+    {
+        return null;
+    }
 }
