@@ -90,30 +90,13 @@ public class Lab08 : Game
         InputManager.Update();
         Time.Update(gameTime);
 
-        foreach (Camera camera in cameras)
-        {
-            Ray ray = camera.ScreenPointToWorldRay
-                (InputManager.GetMousePosition());
-            float nearest = Single.MaxValue; // Start with highest value
-            float? p;
-            Collider target = null; // Assume no intersection
-            foreach (Collider collider in colliders)
-                if ((p = collider.Intersects(ray)) != null)
-                {
-                    float q = (float) p;
-                    if (q < nearest)
-                        nearest = q;
-                    target = collider;
-                }
-
-            if (target != null && nearest < camera.FarPlane)
-            {
-
-            }
+        
+            Ray ray = camera.ScreenPointToWorldRay(InputManager.GetMousePosition());
+            Ray ray2 = topDownCamera.ScreenPointToWorldRay(InputManager.GetMousePosition());
 
             foreach (Collider collider in colliders)
             {
-                if (collider.Intersects(ray) != null)
+                if (collider.Intersects(ray) != null || collider.Intersects(ray2) != null)
                 {
                     effect.Parameters["DiffuseColor"].SetValue(Color.Red.ToVector3());
                     (model.Meshes[0].Effects[0] as BasicEffect).DiffuseColor =
@@ -125,7 +108,7 @@ public class Lab08 : Game
                         listener.Position = camera.Transform.Position;
                         listener.Forward = camera.Transform.Forward;
                         AudioEmitter emitter = new AudioEmitter();
-                        emitter.Position = target.Transform.Position;
+                        emitter.Position = collider.Transform.Position;
                         instance.Apply3D(listener, emitter);
                         instance.Play();
                     }
@@ -137,7 +120,6 @@ public class Lab08 : Game
                         Color.Red.ToVector3();
                 }
             }
-        }
 
         base.Update(gameTime);
     }
