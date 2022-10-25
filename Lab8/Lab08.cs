@@ -140,7 +140,6 @@ public class Lab08 : Game
             effect.Parameters["LightPosition"].SetValue(light.Transform.Position);
             effect.Parameters["CameraPosition"].SetValue(camera.Transform.Position);
             effect.Parameters["Shininess"].SetValue(20f);
-            //effect.Parameters["AmbientColor"].SetValue(Color.White.ToVector3());
             effect.Parameters["SpecularColor"].SetValue(Color.White.ToVector3());
             effect.Parameters["DiffuseTexture"].SetValue(texture);
             foreach (Transform transform in transforms)
