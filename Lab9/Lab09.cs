@@ -95,6 +95,7 @@ public class Lab09 : Game
     {
         GraphicsDevice.Clear(Color.CornflowerBlue);
 
+        (sphere.Meshes[0].Effects[0] as BasicEffect).DiffuseColor = Color.Yellow.ToVector3();
         foreach (AStarNode node in search.Nodes)
             if (!node.Passable)
                 cube.Draw(Matrix.CreateScale(0.5f, 0.05f, 0.5f) *  
