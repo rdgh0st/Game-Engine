@@ -3,7 +3,7 @@ using Microsoft.Xna.Framework;
 
 namespace CPI311.GameEngine;
 
-public class Transform
+public class Transform : Component, IUpdateable
 {
     private Vector3 localPosition;
     private Quaternion localRotation;
@@ -146,6 +146,9 @@ public class Transform
         LocalRotation *= Quaternion.CreateFromAxisAngle(axis, angle);
     }
 
-    
+    public void Update()
+    {
+        UpdateWorld();
+    }
 
 }

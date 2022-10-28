@@ -15,6 +15,11 @@ public class GameObject
         get { return Get<RigidBody>(); }
     }
 
+    public Renderer Renderer
+    {
+        get { return Get<Renderer>(); }
+    }
+
     public Collider Collider 
     { 
         get { return Get<Collider>();} 
@@ -27,8 +32,10 @@ public class GameObject
     {
         Transform = new Transform();
         Components = new Dictionary<Type, Component>();
-        Updateables = new List<IUpdateable>();Renderables = new List<IRenderable>();
+        Updateables = new List<IUpdateable>();
+        Renderables = new List<IRenderable>();
         Drawables = new List<IDrawable>();
+        Updateables.Add(Transform);
     }
     
     public T Add<T>() where T : Component, new()
@@ -43,6 +50,18 @@ public class GameObject
         if (component is IDrawable) Drawables.Add(component as IDrawable);
         return component;
     }
+
+    public void Add<T>(T component) where T : Component
+    {
+        Remove<T>();
+        component.GameObject = this;
+        component.Transform = Transform;
+        Components.Add(typeof(T), component);
+        if (component is IUpdateable) Updateables.Add(component as IUpdateable);
+        if (component is IRenderable) Renderables.Add(component as IRenderable);
+        if (component is IDrawable) Drawables.Add(component as IDrawable);
+    }
+    
     public T Get<T>() where T : Component
     {
         if (Components.ContainsKey(typeof(T)))return Components[typeof(T)] as T;
