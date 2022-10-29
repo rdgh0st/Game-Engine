@@ -282,8 +282,20 @@ public class Assignment03 : Game
                     gameObjects[j].Get<RigidBody>().Impulse += -velocityNormal / 2;
                 }
             }
-            foreach (GameObject gameObject in gameObjects)
-                gameObject.Update();
+
+            try
+            {
+                foreach (GameObject gameObject in gameObjects)
+                    gameObject.Update();
+            }
+            catch (InvalidOperationException e)
+            {
+                Console.WriteLine(e);
+                for (int i = 0; i < gameObjects.Count; i++)
+                {
+                    gameObjects[i].Update();
+                }
+            }
             Thread.Sleep(16);
         }
     }
