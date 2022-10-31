@@ -32,6 +32,7 @@ public class Assignment03 : Game
     private float framesPerSecond;
     private float totalFrames;
     private bool collisionThread = true;
+    private bool initialThreadToggle = true;
 
     public Assignment03()
     {
@@ -58,7 +59,8 @@ public class Assignment03 : Game
         gameObjects = new List<GameObject>();
         
         ThreadPool.QueueUserWorkItem(new WaitCallback(CollisionReset));
-        ThreadPool.QueueUserWorkItem(new WaitCallback(CollisionCheck));
+        ThreadPool.QueueUserWorkItem(new WaitCallback(CollisionBoxCheck));
+        ThreadPool.QueueUserWorkItem(new WaitCallback(CollisionSphereCheck));
 
         base.Initialize();
     }
@@ -72,11 +74,13 @@ public class Assignment03 : Game
         objModel = Content.Load<Model>("Sphere");
         texture = Content.Load<Texture2D>("Square");
         font = Content.Load<SpriteFont>("font");
+        /*
         AddGameObject();
         AddGameObject();
         AddGameObject();
         AddGameObject();
         AddGameObject();
+        */
     }
 
     protected override void Update(GameTime gameTime)
@@ -145,11 +149,13 @@ public class Assignment03 : Game
             collisionThread = !collisionThread;
             if (collisionThread)
             {
-                ThreadPool.QueueUserWorkItem(new WaitCallback(CollisionCheck));
+                initialThreadToggle = true;
+                ThreadPool.QueueUserWorkItem(new WaitCallback(CollisionBoxCheck));
+                ThreadPool.QueueUserWorkItem(new WaitCallback(CollisionSphereCheck));
             }
         }
-
-        if (!collisionThread)
+        
+        if (!collisionThread) 
         {
             Vector3 normal;
             for (int i = 0; i < gameObjects.Count; i++)
@@ -186,6 +192,12 @@ public class Assignment03 : Game
     {
         GraphicsDevice.Clear(Color.CornflowerBlue);
 
+        if (initialThreadToggle)
+        {
+            initialThreadToggle = false;
+            ThreadPool.QueueUserWorkItem(new WaitCallback(UpdateSpheres));
+        }
+        
         if (colorChange)
         {
             foreach (var gameObject in gameObjects)
@@ -259,7 +271,42 @@ public class Assignment03 : Game
         }
     }
 
-    private void CollisionCheck(Object obj)
+    private void CollisionSphereCheck(Object obj)
+    {
+        while (collisionThread)
+        {
+            Vector3 normal;
+            for (int i = 0; i < gameObjects.Count; i++)
+            {
+                for (int j = i + 1; j < gameObjects.Count; j++)
+                {
+                    if (gameObjects[i].Get<Collider>().Collides(gameObjects[j].Get<Collider>(), out normal))
+                        numberCollisions++;
+                    Vector3 velocityNormal =
+                        Vector3.Dot(normal,
+                            gameObjects[i].Get<RigidBody>().Velocity - gameObjects[j].Get<RigidBody>().Velocity) * -2 *
+                        normal * gameObjects[i].Get<RigidBody>().Mass * gameObjects[j].Get<RigidBody>().Mass;
+                    gameObjects[i].Get<RigidBody>().Impulse += velocityNormal / 2;
+                    gameObjects[j].Get<RigidBody>().Impulse += -velocityNormal / 2;
+                }
+            }
+            Thread.Sleep(16);
+        }
+    }
+
+    private void UpdateSpheres(Object obj)
+    {
+        while (collisionThread)
+        {
+            for (int i = 0; i < gameObjects.Count; i++)
+            {
+                gameObjects[i].Update();
+            }
+            Thread.Sleep(16);
+        }
+    }
+
+    private void CollisionBoxCheck(Object obj)
     {
         while (collisionThread)
         {
@@ -269,31 +316,9 @@ public class Assignment03 : Game
                 if (boxCollider.Collides(gameObjects[i].Get<Collider>(), out normal))
                 {
                     numberCollisions++;
-                    if(Vector3.Dot(normal, gameObjects[i].Get<RigidBody>().Velocity) <0)
-                        gameObjects[i].Get<RigidBody>().Impulse += 
-                            Vector3.Dot(normal,gameObjects[i].Get<RigidBody>().Velocity)*-2*normal;
-                }
-                for (int j = i + 1; j < gameObjects.Count; j++)
-                {
-                    if (gameObjects[i].Get<Collider>().Collides(gameObjects[j].Get<Collider>(), out normal))
-                        numberCollisions++;
-                    Vector3 velocityNormal = Vector3.Dot(normal, gameObjects[i].Get<RigidBody>().Velocity - gameObjects[j].Get<RigidBody>().Velocity) * -2 * normal * gameObjects[i].Get<RigidBody>().Mass * gameObjects[j].Get<RigidBody>().Mass;
-                    gameObjects[i].Get<RigidBody>().Impulse += velocityNormal / 2;
-                    gameObjects[j].Get<RigidBody>().Impulse += -velocityNormal / 2;
-                }
-            }
-
-            try
-            {
-                foreach (GameObject gameObject in gameObjects)
-                    gameObject.Update();
-            }
-            catch (InvalidOperationException e)
-            {
-                Console.WriteLine(e);
-                for (int i = 0; i < gameObjects.Count; i++)
-                {
-                    gameObjects[i].Update();
+                    if (Vector3.Dot(normal, gameObjects[i].Get<RigidBody>().Velocity) < 0)
+                        gameObjects[i].Get<RigidBody>().Impulse +=
+                            Vector3.Dot(normal, gameObjects[i].Get<RigidBody>().Velocity) * -2 * normal;
                 }
             }
             Thread.Sleep(16);
