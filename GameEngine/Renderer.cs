@@ -1,4 +1,5 @@
 using System;
+using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 
@@ -13,6 +14,7 @@ public class Renderer : Component, IRenderable
     public GraphicsDevice g;
     public Camera Camera;
     public Light Light;
+    public Vector3? color { get; set; }
     
     public Renderer (Model objModel, Transform objTransform, Camera camera, 
         ContentManager content, GraphicsDevice graphicsDevice, Light light, 
@@ -51,6 +53,13 @@ public class Renderer : Component, IRenderable
             }
         }
         else
+        {
+            if (color != null)
+            {
+                (ObjectModel.Meshes[0].Effects[0] as BasicEffect).DiffuseColor = color.Value;
+            }
             ObjectModel.Draw(Transform.World,Camera.View, Camera.Projection);
+        }
+            //
     }
 }

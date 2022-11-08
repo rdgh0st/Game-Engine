@@ -9,6 +9,8 @@ public class GameObject
 {
     public Transform Transform { get; protected set; }
     public Camera Camera { get { return Get<Camera>(); } }
+    
+    public string Tag { get; set; }
 
     public RigidBody Rigidbody
     {
@@ -24,10 +26,10 @@ public class GameObject
     { 
         get { return Get<Collider>();} 
     }
-    private Dictionary<Type, Component> Components { get; set; }
-    private List<IUpdateable> Updateables { get; set; }
-    private List<IRenderable> Renderables { get; set; }
-    private List<IDrawable> Drawables { get; set; }
+    protected Dictionary<Type, Component> Components { get; set; }
+    protected List<IUpdateable> Updateables { get; set; }
+    protected List<IRenderable> Renderables { get; set; }
+    protected List<IDrawable> Drawables { get; set; }
     public GameObject()
     {
         Transform = new Transform();

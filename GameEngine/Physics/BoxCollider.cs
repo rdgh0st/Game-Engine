@@ -1,5 +1,7 @@
 using System;
+using System.Collections.Generic;
 using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
 
 namespace CPI311.GameEngine.Physics;
 
@@ -71,4 +73,5 @@ public class BoxCollider : Collider
         return new BoundingBox(-Vector3.One*Size, Vector3.One*Size).
             Intersects(ray);
     }
+
 }

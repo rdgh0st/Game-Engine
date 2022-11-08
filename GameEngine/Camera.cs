@@ -1,3 +1,4 @@
+using System;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
@@ -30,7 +31,7 @@ public class Camera : Component
             Projection, View, Matrix.Identity);
         Vector3 end = Viewport.Unproject(new Vector3(position, 1),
             Projection, View, Matrix.Identity);
-        return new Ray(start, end - start);
+        return new Ray(start, Vector3.Normalize(end - start));
     }
 
     public Matrix Projection
@@ -53,5 +54,7 @@ public class Camera : Component
         NearPlane = 0.1f;
         FarPlane = 1000f;
         Transform = null;
+        Position = new Vector2(0, 0);
+        Size = new Vector2(1, 1);
     }
 }
