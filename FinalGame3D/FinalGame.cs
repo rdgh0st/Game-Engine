@@ -15,6 +15,7 @@ public class FinalGame : Game
 {
     private GraphicsDeviceManager _graphics;
     private SpriteBatch _spriteBatch;
+    private Random random;
     private GameObject player;
     private Camera camera;
     private Light light;
@@ -37,6 +38,7 @@ public class FinalGame : Game
         Time.Initialize();
         InputManager.Initialize();
         ScreenManager.Initialize(_graphics);
+        random = new Random();
         enemies = new List<GameObject>();
         playerBullets = new List<GameObject>();
         camera = new Camera();
@@ -214,6 +216,11 @@ public class FinalGame : Game
         bullet.Add<RigidBody>(rigidbody);
         playerBullets.Add(bullet);
     }
+
+    private void spawnItem(Vector3 pos)
+    {
+        
+    }
     
     private void BulletEnemyCollision(Object obj)
     {
@@ -240,6 +247,6 @@ public class FinalGame : Game
             Thread.Sleep(16);
         }
     }
-    
+
 }
 
