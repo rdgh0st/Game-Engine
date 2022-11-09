@@ -24,6 +24,7 @@ public class FinalGame : Game
     private Model enemyModel;
     private List<GameObject> enemies;
     private List<GameObject> playerBullets;
+    private List<GameObject> itemsOnField;
     private float bulletSpeed = 10;
 
     public FinalGame()
@@ -41,6 +42,7 @@ public class FinalGame : Game
         random = new Random();
         enemies = new List<GameObject>();
         playerBullets = new List<GameObject>();
+        itemsOnField = new List<GameObject>();
         camera = new Camera();
         camera.Transform = new Transform();
         camera.Transform.LocalPosition = Vector3.Up * 25 + Vector3.Backward * 10;
@@ -70,12 +72,16 @@ public class FinalGame : Game
         player.Add<PlayerController>(controller);
         Renderer playerRenderer = new Renderer(playerModel, player.Transform, camera, Content, GraphicsDevice, light, null, 2, 20f, Content.Load<Texture2D>("HelicopterTexture"));
         player.Add<Renderer>(playerRenderer);
+        SphereCollider sphereCollider = new SphereCollider();
+        sphereCollider.Radius = 1.0f * player.Transform.LocalScale.Y;
+        player.Add<Collider>(sphereCollider);
 
         spawnEnemy(new Vector3(-10, 0, 0));
         spawnEnemy(new Vector3(10, 0, 0));
 
         plane = new Plane(new Vector3(0, 0, 0), Vector3.Up);
         ThreadPool.QueueUserWorkItem(new WaitCallback(BulletEnemyCollision));
+        ThreadPool.QueueUserWorkItem(new WaitCallback(PlayerCollisions));
     }
 
     protected override void Update(GameTime gameTime)
@@ -115,7 +121,7 @@ public class FinalGame : Game
             {
                 //(enemies[i].Renderer.ObjectModel.Meshes[0].Effects[0] as BasicEffect).DiffuseColor =
                 enemies[i].Renderer.color =
-                    Color.Red.ToVector3();
+                    Color.DarkRed.ToVector3();
                 if (InputManager.isMouseRightClicked())
                 {
                     Vector3 worldPoint = ray.Position + p.Value * ray.Direction;
@@ -128,7 +134,7 @@ public class FinalGame : Game
             {
                 //(enemies[i].Renderer.ObjectModel.Meshes[0].Effects[0] as BasicEffect).DiffuseColor =
                 enemies[i].Renderer.color =
-                    Color.Blue.ToVector3();
+                    Color.Red.ToVector3();
             } 
         }
 
@@ -177,6 +183,11 @@ public class FinalGame : Game
         {
             bullet.Draw();
         }
+
+        foreach (GameObject item in itemsOnField)
+        {
+            item.Draw();
+        }
         
         base.Draw(gameTime);
     }
@@ -219,7 +230,29 @@ public class FinalGame : Game
 
     private void spawnItem(Vector3 pos)
     {
-        
+        GameObject item = new GameObject();
+        pos.X += (random.NextSingle() - 0.5f) * 3;
+        pos.Z += (random.NextSingle() - 0.5f) * 3;
+        item.Transform.Position = pos;
+        item.Transform.Scale = new Vector3(0.5f, 0.5f, 0.5f);
+        Renderer itemRenderer = new Renderer(Content.Load<Model>("Sphere"), item.Transform, camera, Content,
+            GraphicsDevice, light, null, 0, 20f, null);
+        item.Add(itemRenderer);
+        SphereCollider sphereCollider = new SphereCollider();
+        sphereCollider.Radius = 1.0f * item.Transform.LocalScale.Y;
+        item.Add<Collider>(sphereCollider);
+        Item itemType = new Item(random.Next(0, 101), random.Next(0, 101));
+        item.Add(itemType);
+        item.Renderer.color = itemType.CurrentRarity switch
+        {
+            Item.Rarity.Common => Color.White.ToVector3(),
+            Item.Rarity.Uncommon => Color.Green.ToVector3(),
+            Item.Rarity.Rare => Color.MediumBlue.ToVector3(),
+            Item.Rarity.Epic => Color.Purple.ToVector3(),
+            Item.Rarity.Legendary => Color.Gold.ToVector3()
+        };
+        Console.WriteLine("Spawned " + itemType.CurrentRarity + " " + itemType.CurrentSlot);
+        itemsOnField.Add(item);
     }
     
     private void BulletEnemyCollision(Object obj)
@@ -235,6 +268,7 @@ public class FinalGame : Game
                     {
                         if (enemies[i].Get<Health>().TakeDamage(25))
                         {
+                            spawnItem(enemies[i].Transform.Position);
                             enemies[i] = null;
                             enemies.RemoveAt(i);
                         }
@@ -244,6 +278,35 @@ public class FinalGame : Game
                     }
                 }
             }
+            Thread.Sleep(16);
+        }
+    }
+    
+    private void PlayerCollisions(Object obj)
+    {
+        while (true)
+        {
+            Vector3 normal;
+                for (int i = 0; i < enemies.Count; i++)
+                {
+                    if (enemies[i].Get<Collider>().Collides(player.Get<Collider>(), out normal))
+                    {
+                        // player takes damage
+                        Console.WriteLine("Player Damaged!");
+                    }
+                }
+
+                for (int i = 0; i < itemsOnField.Count; i++)
+                {
+                    if (itemsOnField[i].Get<Collider>().Collides(player.Get<Collider>(), out normal))
+                    {
+                        // equip item
+                        itemsOnField[i].Get<Item>().isEquipped = true;
+                        itemsOnField[i].Remove<Collider>();
+                        Console.WriteLine("Equipped " + itemsOnField[i].Get<Item>().CurrentRarity + " " + itemsOnField[i].Get<Item>().CurrentSlot);
+                        itemsOnField.RemoveAt(i);
+                    }
+                }
             Thread.Sleep(16);
         }
     }

@@ -1,3 +1,6 @@
+using CPI311.GameEngine.Physics;
+using Microsoft.Xna.Framework;
+
 namespace CPI311.GameEngine;
 
 public class Item : Component
@@ -14,8 +17,8 @@ public class Item : Component
         Common, Uncommon, Rare, Epic, Legendary
     }
 
-    private Rarity CurrentRarity;
-    private Slot CurrentSlot;
+    public Rarity CurrentRarity;
+    public Slot CurrentSlot;
 
     public Item(int slotSeed, int raritySeed)
     {
