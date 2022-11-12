@@ -16,8 +16,8 @@ public class PlayerController : Component, IUpdateable
     }
 
     public State CurrentState { get; set; } = State.Still;
-    public float TimeToShoot { get; set; } = 1f;
-    private float shotTimer;
+    public float TimeToShoot { get; set; } = 0.5f;
+    private float shotTimer = 1.5f;
     
     public PlayerController(Vector3 t)
     {
@@ -29,14 +29,11 @@ public class PlayerController : Component, IUpdateable
         switch (CurrentState)
         {
             case State.Still:
-                shotTimer = 0;
                 return;
             case State.Turning:
-                shotTimer = 0;
                 Rotate();
                 break;
             case State.Pathing:
-                shotTimer = 0;
                 Move();
                 break;
             case State.Shooting:
@@ -81,7 +78,7 @@ public class PlayerController : Component, IUpdateable
             }
             else
             {
-                CurrentState = State.Shooting;
+                CurrentState = State.ShootCooldown;
             }
         }
         float finalSpeed = (distance / MoveSpeed);
