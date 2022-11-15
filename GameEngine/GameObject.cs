@@ -81,12 +81,12 @@ public class GameObject
             if (component is IDrawable) Drawables.Remove(component as IDrawable);
         }
     }
-    public void Update()
+    public virtual void Update()
     {
         foreach (IUpdateable component in Updateables) component.Update();
     }
     
-    public void Draw()
+    public virtual void Draw()
     {
         foreach (IRenderable component in Renderables) component.Draw();
     }
