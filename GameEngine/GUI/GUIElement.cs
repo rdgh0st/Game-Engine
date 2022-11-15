@@ -14,11 +14,12 @@ public class GUIElement
     public Rectangle Bounds { get; set; }
     public Texture2D Texture { get; set; }
     public string Text { get; set; }
+    public Color fontColor { get; set; } = Color.Black;
     public bool Selected { get; set; }
     public virtual void Update() { }
     public virtual void Draw(SpriteBatch spriteBatch, SpriteFont font)
     {
         if (Texture != null)
-            spriteBatch.Draw(Texture, Bounds, Selected ? Color.Yellow : Color.White);
+            spriteBatch.Draw(Texture, Bounds, Selected ? Color.Yellow : Color.Gray);
     }
 }

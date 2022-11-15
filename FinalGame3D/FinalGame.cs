@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq.Expressions;
 using System.Threading;
 using CPI311.GameEngine;
+using CPI311.GameEngine.GUI;
 using CPI311.GameEngine.Physics;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
@@ -28,6 +29,7 @@ public class FinalGame : Game
     private List<GameObject> itemsOnField;
     private List<GameObject> inventory;
     private Dictionary<Item.Slot, GameObject> currentlyEquipped;
+    private List<GUIElement> guiElements;
     private float bulletSpeed = 10;
     private int luck = 0;
     private int bulletDamage = 25;
@@ -50,6 +52,7 @@ public class FinalGame : Game
         enemies = new List<GameObject>();
         playerBullets = new List<GameObject>();
         itemsOnField = new List<GameObject>();
+        guiElements = new List<GUIElement>();
         camera = new Camera();
         camera.Transform = new Transform();
         camera.Transform.LocalPosition = Vector3.Up * 25 + Vector3.Backward * 10;
@@ -71,25 +74,15 @@ public class FinalGame : Game
         enemyModel = Content.Load<Model>("Sphere");
         font = Content.Load<SpriteFont>("font");
 
-        player = new GameObject();
-        player.Transform.Position = new Vector3(0, 0, 0);
-        PlayerController controller = new PlayerController(new Vector3(20, 0, 20));
-        controller.TurnSpeed = 10;
-        controller.MoveSpeed = 10;
-        controller.TimeToShoot = 1.5f;
-        player.Add<PlayerController>(controller);
-        Renderer playerRenderer = new Renderer(playerModel, player.Transform, camera, Content, GraphicsDevice, light, null, 2, 20f, Content.Load<Texture2D>("HelicopterTexture"));
-        player.Add<Renderer>(playerRenderer);
-        SphereCollider sphereCollider = new SphereCollider();
-        sphereCollider.Radius = 1.0f * player.Transform.LocalScale.Y;
-        player.Add<Collider>(sphereCollider);
-        Health health = new Health(100);
-        player.Add(health);
+        player = new Player(playerModel, Content.Load<Texture2D>("HelicopterTexture"), Content, camera, GraphicsDevice,
+            light);
 
         spawnEnemy(new Vector3(-10, 0, 0));
         spawnEnemy(new Vector3(10, 0, 0));
         spawnEnemy(new Vector3(10, 0, 10));
         spawnEnemy(new Vector3(10, 0, -10));
+        spawnEnemy(new Vector3(-10, 0, 10));
+        spawnEnemy(new Vector3(-10, 0, -10));
 
         plane = new Plane(new Vector3(0, 0, 0), Vector3.Up);
         ThreadPool.QueueUserWorkItem(new WaitCallback(BulletEnemyCollision));
@@ -156,10 +149,16 @@ public class FinalGame : Game
         for (int i = 0; i < itemsOnField.Count; i++)
         {
             GameObject e = itemsOnField[i];
-            //Console.WriteLine(e + " " + e.Get<Collider>().Intersects(ray));
-            // ReSharper disable once HeapView.BoxingAllocation
-            itemHits.Add(e, e.Get<Collider>().Intersects(ray));
-            iHits.Add(e.Get<Collider>().Intersects(ray));
+            try
+            {
+                // ReSharper disable once HeapView.BoxingAllocation
+                itemHits.Add(e, e.Get<Collider>().Intersects(ray));
+                iHits.Add(e.Get<Collider>().Intersects(ray));
+            }
+            catch (NullReferenceException exception)
+            {
+                Console.WriteLine(exception);
+            }
         }
 
         for (int i = 0; i < itemsOnField.Count; i++)
@@ -208,6 +207,11 @@ public class FinalGame : Game
             GameObject bullet = playerBullets[i];
             bullet.Update();
         }
+
+        for (int i = 0; i < guiElements.Count; i++)
+        {
+            guiElements[i].Update();
+        }
         
         base.Update(gameTime);
     }
@@ -240,10 +244,6 @@ public class FinalGame : Game
         {
             GameObject item = itemsOnField[i];
             item.Draw();
-            _graphics.GraphicsDevice.Viewport.Project(item.Transform.Position, camera.Projection, camera.View,
-                item.Transform.World);
-            Vector3 screenView = camera.Viewport.Project(item.Transform.Position, camera.Projection,
-                camera.View, item.Transform.World);
             if (item.Get<Item>().drawName)
                 _spriteBatch.DrawString(font, item.Get<Item>().name, item.Get<Item>().drawCoords, item.Get<Item>().color);
         }
@@ -262,6 +262,11 @@ public class FinalGame : Game
         
         if (currentlyEquipped.ContainsKey(Item.Slot.Boots) && currentlyEquipped[Item.Slot.Boots] != null)
             _spriteBatch.DrawString(font, "Current Boots: " + currentlyEquipped[Item.Slot.Boots].Get<Item>().name, new Vector2(30, 110), currentlyEquipped[Item.Slot.Boots].Get<Item>().color);
+
+        for (int i = 0; i < guiElements.Count; i++)
+        {
+            guiElements[i].Draw(_spriteBatch, font);
+        }
         
         _spriteBatch.End();
         
@@ -270,37 +275,19 @@ public class FinalGame : Game
 
     private void spawnEnemy(Vector3 enemyPos)
     {
-        GameObject enemy = new GameObject();
-        enemy.Transform.Position = enemyPos;
-        Renderer enemyRenderer = new Renderer(Content.Load<Model>("Sphere"), enemy.Transform, camera, Content,
-            GraphicsDevice, light, null, 0, 20f, null);
-        enemy.Add<Renderer>(enemyRenderer);
-        SphereCollider sphereCollider = new SphereCollider();
-        sphereCollider.Radius = 1.0f * enemy.Transform.LocalScale.Y;
-        enemy.Add<Collider>(sphereCollider);
-        Health h = new Health(100);
-        enemy.Add(h);
+        GameObject enemy = new BasicEnemy(Content.Load<Model>("Sphere"), null, enemyPos, Content, camera,
+            GraphicsDevice, light);
         enemies.Add(enemy);
     }
 
     private void playerShoot()
     {
-        GameObject bullet = new GameObject();
+        GameObject bullet = new FinalBullet(Content.Load<Model>("Sphere"), null, Content, camera,
+            GraphicsDevice, light);
         bullet.Transform.Position = player.Transform.Position;
-        bullet.Transform.Scale = new Vector3(0.25f, 0.25f, 0.25f);
-        Renderer bulletRenderer = new Renderer(Content.Load<Model>("Sphere"), bullet.Transform, camera, Content,
-            GraphicsDevice, light, null, 0, 20f, null);
-        bulletRenderer.color = Color.Black.ToVector3();
-        bullet.Add<Renderer>(bulletRenderer);
-        SphereCollider sphereCollider = new SphereCollider();
-        sphereCollider.Radius = 1.0f * bullet.Transform.LocalScale.Y;
-        bullet.Add<Collider>(sphereCollider);
-        RigidBody rigidbody = new RigidBody();
-        rigidbody.Mass = 1;
         Vector3 direction = player.Get<PlayerController>().target - player.Transform.Position;
         direction.Normalize();
-        rigidbody.Velocity = direction * bulletSpeed;
-        bullet.Add<RigidBody>(rigidbody);
+        bullet.Get<RigidBody>().Velocity = direction * bulletSpeed;
         playerBullets.Add(bullet);
     }
 
@@ -322,6 +309,41 @@ public class FinalGame : Game
         item.Renderer.color = itemType.color.ToVector3();
         Console.WriteLine("Spawned " + itemType.CurrentRarity + " " + itemType.CurrentSlot);
         itemsOnField.Add(item);
+    }
+    
+    void EquipItemfromGUI(GUIElement element)
+    {
+        // find index of guiElement, find corresponding name in inventory list
+        Predicate<GameObject> finder = (GameObject p) => { return p.Get<Item>().name == element.Text; };
+        GameObject toEquip = inventory[inventory.FindIndex(finder)];
+        // swap equipped item with inventory
+        string newName = currentlyEquipped[toEquip.Get<Item>().CurrentSlot].Get<Item>().name;
+        Color newColor = currentlyEquipped[toEquip.Get<Item>().CurrentSlot].Get<Item>().color;
+        inventory[inventory.FindIndex(finder)] = currentlyEquipped[toEquip.Get<Item>().CurrentSlot];
+        currentlyEquipped[toEquip.Get<Item>().CurrentSlot] = toEquip;
+        // update button
+        element.Text = newName;
+        element.fontColor = newColor;
+        ApplyUpgrades();
+    }
+
+    void RemoveFromInventory(GUIElement element)
+    {
+        Predicate<GUIElement> buttonFinder = (GUIElement b) =>
+        {
+            return b.Bounds.Y == element.Bounds.Y && b.Text != element.Text;
+        };
+        GUIElement itemButton = guiElements[guiElements.FindIndex(buttonFinder)];
+        Predicate<GameObject> finder = (GameObject p) => { return p.Get<Item>().name == itemButton.Text; };
+        int i = inventory.FindIndex(finder);
+        inventory[i] = null;
+        inventory.RemoveAt(i);
+        int j = guiElements.FindIndex(buttonFinder);
+        guiElements[j] = null;
+        guiElements.RemoveAt(j);
+        int k = guiElements.IndexOf(element);
+        guiElements[k] = null;
+        guiElements.RemoveAt(k);
     }
 
     private void ApplyUpgrades()
@@ -492,6 +514,21 @@ public class FinalGame : Game
                         else
                         {
                             inventory.Add(itemsOnField[i]);
+                            Button itemButton = new Button();
+                            itemButton.Texture = Content.Load<Texture2D>("Square");
+                            itemButton.Text = itemsOnField[i].Get<Item>().name;
+                            itemButton.fontColor = itemsOnField[i].Get<Item>().color;
+                            Predicate<GameObject> finder = (GameObject p) => { return p == itemsOnField[i]; };
+                            itemButton.Bounds = new Rectangle(30, 130 + (30 * inventory.FindIndex(finder)), 300, 30);
+                            itemButton.Action += EquipItemfromGUI;
+                            guiElements.Add(itemButton);
+                            Button trashButton = new Button();
+                            trashButton.Texture = Content.Load<Texture2D>("Square");
+                            trashButton.Text = "( X )";
+                            trashButton.fontColor = Color.Red;
+                            trashButton.Bounds = new Rectangle(340, 130 + (30 * inventory.FindIndex(finder)), 30, 30);
+                            trashButton.Action += RemoveFromInventory;
+                            guiElements.Add(trashButton);
                         }
                         itemsOnField[i].Remove<Collider>();
                         Console.WriteLine("Equipped " + itemsOnField[i].Get<Item>().CurrentRarity + " " + itemsOnField[i].Get<Item>().CurrentSlot);

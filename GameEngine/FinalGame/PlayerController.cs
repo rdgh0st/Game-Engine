@@ -57,7 +57,7 @@ public class PlayerController : Component, IUpdateable
         Quaternion currentRot = GetRotation(Vector3.Forward, Transform.Forward, Vector3.Up, out var currentAngle);
         Quaternion targetRot = GetRotation(Vector3.Forward, newForward, Vector3.Up, out var rotAngle);
 
-        if (Math.Abs(currentAngle - rotAngle) < 0.1f)
+        if (Math.Abs(currentAngle - rotAngle) < 0.15f)
         {
             CurrentState = State.Pathing;
         }

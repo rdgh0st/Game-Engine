@@ -16,6 +16,6 @@ public class Button : GUIElement
     {
         base.Draw(spriteBatch, font);
         spriteBatch.DrawString(font, Text,
-            new Vector2(Bounds.X, Bounds.Y), Color.Black);
+            new Vector2(Bounds.X, Bounds.Y), fontColor);
     }
 }
