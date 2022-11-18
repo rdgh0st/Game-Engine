@@ -33,6 +33,10 @@ public class FinalGame : Game
     private float bulletSpeed = 10;
     private int luck = 0;
     private int bulletDamage = 25;
+    private AOEAttack currentAOE;
+    ParticleManager particleManager;
+    Texture2D particleTex;
+    Effect particleEffect;
 
     public FinalGame()
     {
@@ -73,6 +77,9 @@ public class FinalGame : Game
         playerModel = Content.Load<Model>("Helicopter");
         enemyModel = Content.Load<Model>("Sphere");
         font = Content.Load<SpriteFont>("font");
+        particleManager = new ParticleManager(GraphicsDevice, 100);
+        particleEffect = Content.Load<Effect>("ParticleShader-complete");
+        particleTex = Content.Load<Texture2D>("fire");
 
         player = new Player(playerModel, Content.Load<Texture2D>("HelicopterTexture"), Content, camera, GraphicsDevice,
             light);
@@ -85,6 +92,8 @@ public class FinalGame : Game
         spawnEnemy(new Vector3(-10, 0, -10));
 
         plane = new Plane(new Vector3(0, 0, 0), Vector3.Up);
+        currentAOE = new AOEAttack(Content.Load<Model>("Sphere"), null, player.Transform.Position, Content, camera,
+            GraphicsDevice, light, enemies);
         ThreadPool.QueueUserWorkItem(new WaitCallback(BulletEnemyCollision));
         ThreadPool.QueueUserWorkItem(new WaitCallback(PlayerCollisions));
     }
@@ -188,6 +197,21 @@ public class FinalGame : Game
             playerShoot();
         }
 
+        if (InputManager.IsKeyPressed(Keys.Q) && player.Get<PlayerController>().canAOE())
+        {
+            currentAOE.SetPosition(player.Transform.Position);
+            currentAOE.timer = 0;
+            /*
+            Particle particle = particleManager.getNext();
+            particle.Position = currentAOE.Transform.Position;
+            particle.Velocity = new Vector3(
+                2, 2, 2);
+            particle.Acceleration = new Vector3(3, 3, 3);
+            particle.MaxAge = 6;
+            particle.Init();
+            */
+        }
+
         player.Update();
         for (int i = 0; i < enemies.Count; i++)
         {
@@ -213,6 +237,9 @@ public class FinalGame : Game
             guiElements[i].Update();
         }
         
+        currentAOE?.Update();
+        particleManager.Update();
+        
         base.Update(gameTime);
     }
 
@@ -224,6 +251,8 @@ public class FinalGame : Game
         GraphicsDevice.DepthStencilState = new DepthStencilState();
         GraphicsDevice.Viewport = camera.Viewport;
 
+        
+        currentAOE?.Draw();
         //player.Renderer.Material.Diffuse = Color.White.ToVector3();
         player.Draw();
 
@@ -247,7 +276,7 @@ public class FinalGame : Game
             if (item.Get<Item>().drawName)
                 _spriteBatch.DrawString(font, item.Get<Item>().name, item.Get<Item>().drawCoords, item.Get<Item>().color);
         }
-        
+
         if (currentlyEquipped.ContainsKey(Item.Slot.Hat) && currentlyEquipped[Item.Slot.Hat] != null)
             _spriteBatch.DrawString(font, "Current Hat: " + currentlyEquipped[Item.Slot.Hat].Get<Item>().name, new Vector2(30, 30), currentlyEquipped[Item.Slot.Hat].Get<Item>().color);
         
@@ -269,6 +298,20 @@ public class FinalGame : Game
         }
         
         _spriteBatch.End();
+        
+        //particle draw
+        /*
+        GraphicsDevice.DepthStencilState = DepthStencilState.DepthRead;
+        particleEffect.CurrentTechnique = particleEffect.Techniques["particle"];
+        particleEffect.CurrentTechnique.Passes[0].Apply();
+        particleEffect.Parameters["ViewProj"].SetValue(camera.View *camera.Projection);
+        particleEffect.Parameters["World"].SetValue(Matrix.Identity);
+        particleEffect.Parameters["CamIRot"].SetValue(
+            Matrix.Invert(Matrix.CreateFromQuaternion(camera.Transform.Rotation)));
+        particleEffect.Parameters["Texture"].SetValue(particleTex);
+        particleManager.Draw(GraphicsDevice);
+        GraphicsDevice.RasterizerState = RasterizerState.CullNone;
+        */
         
         base.Draw(gameTime);
     }
@@ -481,6 +524,23 @@ public class FinalGame : Game
                         Console.WriteLine("Enemy took damage!");
                         playerBullets[j] = null;
                         playerBullets.RemoveAt(j);
+                    }
+                }
+
+                if (currentAOE.isActive())
+                {
+                    //if (currentAOE.Get<Collider>().Collides(enemies[i].Collider, out normal) &&
+                    if (Vector3.Distance(currentAOE.Transform.Position, enemies[i].Transform.Position) <= 4.75f &&
+                        enemies[i].Tag != "iFrames")
+                    {
+                        Console.WriteLine(Vector3.Distance(currentAOE.Transform.Position, enemies[i].Transform.Position));
+                        enemies[i].Tag = "iFrames";
+                        if (enemies[i].Get<Health>().TakeDamage(bulletDamage))
+                        {
+                            spawnItem(enemies[i].Transform.Position);
+                            enemies[i] = null;
+                            enemies.RemoveAt(i);
+                        }
                     }
                 }
             }

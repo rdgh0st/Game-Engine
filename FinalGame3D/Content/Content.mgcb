@@ -38,6 +38,18 @@
 /processorParam:DebugMode=Auto
 /build:CookTorrance.fx
 
+#begin fire.png
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:fire.png
+
 #begin font.spritefont
 /importer:FontDescriptionImporter
 /processor:FontDescriptionProcessor
@@ -75,6 +87,12 @@
 /processorParam:MakeSquare=False
 /processorParam:TextureFormat=Color
 /build:HelicopterTexture.png
+
+#begin ParticleShader-complete.fx
+/importer:EffectImporter
+/processor:EffectProcessor
+/processorParam:DebugMode=Auto
+/build:ParticleShader-complete.fx
 
 #begin PirateAssets/boat_large.fbx
 /importer:FbxImporter

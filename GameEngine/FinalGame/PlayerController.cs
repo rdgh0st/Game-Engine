@@ -4,12 +4,26 @@ using Microsoft.Xna.Framework;
 
 namespace CPI311.GameEngine;
 
+/*
+ * ABILITY IDEAS:
+ * AOE ATTACK SWORD SLICE AROUND YOU
+ * DASH THAT DAMAGES
+ * KNOCKBACK YOURSELF AND ENEMY
+ * SHIELD?
+ * RECALL LIKE TRACER
+ * HARPOON
+ * DAMAGE OVER TIME AS CREW BOARDS YOUR SHIP
+ * ULT TO IMMEDIATELY BOARD YOUR SHIP
+ * 
+ */
+
 public class PlayerController : Component, IUpdateable
 {
     public Vector3 target { get; set; }
     public float TurnSpeed { get; set; }
     public float MoveSpeed { get; set; }
     public float distanceToTarget { get; set; } = 0.5f;
+    public float aoeCooldown { get; set; } = 5f;
     public enum State
     {
         Turning, Pathing, Shooting, ShootCooldown, Interacting, Still
@@ -18,6 +32,7 @@ public class PlayerController : Component, IUpdateable
     public State CurrentState { get; set; } = State.Still;
     public float TimeToShoot { get; set; } = 0.5f;
     private float shotTimer = 1.5f;
+    private float aoeTimer = 5f;
     
     public PlayerController(Vector3 t)
     {
@@ -26,6 +41,8 @@ public class PlayerController : Component, IUpdateable
 
     public void Update()
     {
+        aoeTimer += Time.ElapsedGameTime;
+        
         switch (CurrentState)
         {
             case State.Still:
@@ -48,6 +65,7 @@ public class PlayerController : Component, IUpdateable
                 }
                 break;
         }
+
     }
 
     private void Rotate()
@@ -106,5 +124,15 @@ public class PlayerController : Component, IUpdateable
         Vector3 rotAxis = Vector3.Cross(source, dest);
         rotAxis = Vector3.Normalize(rotAxis);
         return Quaternion.CreateFromAxisAngle(rotAxis, rotAngle);
+    }
+
+    public bool canAOE()
+    {
+        if (aoeTimer >= aoeCooldown)
+        {
+            aoeTimer = 0;
+            return true;
+        }
+        return false;
     }
 }

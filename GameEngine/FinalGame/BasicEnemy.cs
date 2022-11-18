@@ -7,6 +7,8 @@ namespace CPI311.GameEngine;
 
 public class BasicEnemy : GameObject
 {
+    private float iFrameDuration = 0.5f;
+    private float iFrameTimer = 0;
     public BasicEnemy(Model enemyModel, Texture2D enemyTexture, Vector3 enemyPos, ContentManager Content, Camera camera, GraphicsDevice
         graphicsDevice, Light light) : base()
     {
@@ -19,5 +21,19 @@ public class BasicEnemy : GameObject
         Add<Collider>(sphereCollider);
         Health h = new Health(100);
         Add(h);
+    }
+
+    public override void Update()
+    {
+        base.Update();
+        if (Tag == "iFrames")
+        {
+            iFrameTimer += Time.ElapsedGameTime;
+            if (iFrameTimer >= iFrameDuration)
+            {
+                iFrameTimer = 0;
+                Tag = "enemy";
+            }
+        }
     }
 }
