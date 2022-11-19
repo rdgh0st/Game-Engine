@@ -336,7 +336,7 @@ public class FinalGame : Game
     private void spawnEnemy(Vector3 enemyPos)
     {
         GameObject enemy = new BasicEnemy(Content.Load<Model>("Sphere"), null, enemyPos, Content, camera,
-            GraphicsDevice, light);
+            GraphicsDevice, light, player);
         enemies.Add(enemy);
     }
 
@@ -550,14 +550,25 @@ public class FinalGame : Game
                     if (Vector3.Distance(currentAOE.Transform.Position, enemies[i].Transform.Position) <= 4.75f &&
                         enemies[i].Tag != "iFrames")
                     {
-                        Console.WriteLine(Vector3.Distance(currentAOE.Transform.Position, enemies[i].Transform.Position));
                         enemies[i].Tag = "iFrames";
-                        if (enemies[i].Get<Health>().TakeDamage(bulletDamage))
+                        if (enemies[i].Get<Health>().TakeDamage(100))
                         {
                             spawnItem(enemies[i].Transform.Position);
                             enemies[i] = null;
                             enemies.RemoveAt(i);
                         }
+                    }
+                }
+
+                if (harpoon.activeSelf && !harpoon.retracting)
+                {
+                    if (enemies[i].Get<Collider>().Collides(harpoon.Get<Collider>(), out normal))
+                    {
+                        harpoon.retracting = true;
+                        Vector3 direction = player.Transform.Position - harpoon.Transform.Position;
+                        direction.Normalize();
+                        harpoon.Get<RigidBody>().Velocity = direction * 20;
+                        enemies[i].Get<RigidBody>().Velocity = harpoon.Get<RigidBody>().Velocity;
                     }
                 }
             }
