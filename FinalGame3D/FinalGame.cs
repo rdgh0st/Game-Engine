@@ -31,9 +31,11 @@ public class FinalGame : Game
     private Dictionary<Item.Slot, GameObject> currentlyEquipped;
     private List<GUIElement> guiElements;
     private float bulletSpeed = 10;
+    private float harpoonSpeed = 20;
     private int luck = 0;
     private int bulletDamage = 25;
     private AOEAttack currentAOE;
+    private Harpoon harpoon;
     ParticleManager particleManager;
     Texture2D particleTex;
     Effect particleEffect;
@@ -94,6 +96,8 @@ public class FinalGame : Game
         plane = new Plane(new Vector3(0, 0, 0), Vector3.Up);
         currentAOE = new AOEAttack(Content.Load<Model>("Sphere"), null, player.Transform.Position, Content, camera,
             GraphicsDevice, light, enemies);
+        harpoon = new Harpoon(Content.Load<Model>("Sphere"), null, player.Transform.Position, Content, camera,
+            GraphicsDevice, light, enemies, player);
         ThreadPool.QueueUserWorkItem(new WaitCallback(BulletEnemyCollision));
         ThreadPool.QueueUserWorkItem(new WaitCallback(PlayerCollisions));
     }
@@ -117,6 +121,17 @@ public class FinalGame : Game
                 player.Get<PlayerController>().distanceToTarget = 0.5f;
                 player.Get<PlayerController>().CurrentState = PlayerController.State.Turning;
             }
+
+            if (InputManager.IsKeyPressed(Keys.W) && player.Get<PlayerController>().canHarpoon())
+            {
+                Vector3 worldPoint = ray.Position + p.Value * ray.Direction;
+                Vector3 direction = worldPoint - player.Transform.Position;
+                direction.Normalize();
+                harpoon.Transform.Position = player.Transform.Position;
+                harpoon.Get<RigidBody>().Velocity = direction * harpoonSpeed;
+                Console.WriteLine("Shooting from " + player.Transform.Position + " to " + worldPoint);
+                harpoon.activeSelf = true;
+            } 
         }
 
         List<float?> eHits = new List<float?>();
@@ -239,6 +254,7 @@ public class FinalGame : Game
         
         currentAOE?.Update();
         particleManager.Update();
+        harpoon.Update();
         
         base.Update(gameTime);
     }
@@ -253,6 +269,7 @@ public class FinalGame : Game
 
         
         currentAOE?.Draw();
+        harpoon.Draw();
         //player.Renderer.Material.Diffuse = Color.White.ToVector3();
         player.Draw();
 

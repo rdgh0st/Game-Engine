@@ -24,15 +24,17 @@ public class PlayerController : Component, IUpdateable
     public float MoveSpeed { get; set; }
     public float distanceToTarget { get; set; } = 0.5f;
     public float aoeCooldown { get; set; } = 5f;
+    public float harpoonCooldown { get; set; } = 5f;
     public enum State
     {
-        Turning, Pathing, Shooting, ShootCooldown, Interacting, Still
+        Turning, Pathing, Shooting, ShootCooldown, Harpooning, Still
     }
 
     public State CurrentState { get; set; } = State.Still;
     public float TimeToShoot { get; set; } = 0.5f;
     private float shotTimer = 1.5f;
     private float aoeTimer = 5f;
+    private float harpoonTimer { get; set; } = 5f;
     
     public PlayerController(Vector3 t)
     {
@@ -42,6 +44,7 @@ public class PlayerController : Component, IUpdateable
     public void Update()
     {
         aoeTimer += Time.ElapsedGameTime;
+        harpoonTimer += Time.ElapsedGameTime;
         
         switch (CurrentState)
         {
@@ -133,6 +136,17 @@ public class PlayerController : Component, IUpdateable
             aoeTimer = 0;
             return true;
         }
+        return false;
+    }
+
+    public bool canHarpoon()
+    {
+        if (harpoonTimer >= harpoonCooldown)
+        {
+            harpoonTimer = 0;
+            return true;
+        }
+
         return false;
     }
 }
