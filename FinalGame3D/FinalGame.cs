@@ -87,11 +87,11 @@ public class FinalGame : Game
             light);
 
         spawnEnemy(new Vector3(-10, 0, 0));
-        spawnEnemy(new Vector3(10, 0, 0));
-        spawnEnemy(new Vector3(10, 0, 10));
-        spawnEnemy(new Vector3(10, 0, -10));
-        spawnEnemy(new Vector3(-10, 0, 10));
-        spawnEnemy(new Vector3(-10, 0, -10));
+        //spawnEnemy(new Vector3(10, 0, 0));
+        //spawnEnemy(new Vector3(10, 0, 10));
+        //spawnEnemy(new Vector3(10, 0, -10));
+        //spawnEnemy(new Vector3(-10, 0, 10));
+        //spawnEnemy(new Vector3(-10, 0, -10));
 
         plane = new Plane(new Vector3(0, 0, 0), Vector3.Up);
         currentAOE = new AOEAttack(Content.Load<Model>("Sphere"), null, player.Transform.Position, Content, camera,

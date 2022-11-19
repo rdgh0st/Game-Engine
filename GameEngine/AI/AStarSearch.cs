@@ -24,6 +24,17 @@ public class AStarSearch
                 Nodes[r, c] = new AStarNode(c, r, new Vector3(c, 0, r));
     }
     
+    public AStarSearch(int minX, int minZ, int rows, int cols)
+    {
+        openList=new SortedDictionary<float, List<AStarNode>>();
+        Rows = rows;
+        Cols = cols;
+        Nodes = new AStarNode[Rows, Cols];
+        for (int r = 0; r < Rows; r++)
+            for (int c = 0; c < Cols; c++)
+                Nodes[r, c] = new AStarNode(c, r, new Vector3(c + minX, 0, r + minZ));
+    }
+    
     public void Search()
     {
         #region Initialize grid
