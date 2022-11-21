@@ -10,6 +10,12 @@ public static class ScreenManager
     {
         get { return graphics.GraphicsDevice; }
     }
+
+    public static SpriteBatch SpriteBatch
+    {
+        get;
+        set;
+    }
     public static void Initialize(GraphicsDeviceManager g)
     {
         ScreenManager.graphics = g;

@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq.Expressions;
 using System.Threading;
+using System.Xml;
 using CPI311.GameEngine;
 using CPI311.GameEngine.GUI;
 using CPI311.GameEngine.Physics;
@@ -24,8 +25,8 @@ public class FinalGame : Game
     private Model playerModel;
     private Plane plane;
     private Model enemyModel;
-    private List<GameObject> enemies;
-    private List<GameObject> playerBullets;
+    private List<BasicEnemy> enemies;
+    private List<FinalBullet> playerBullets;
     private List<GameObject> itemsOnField;
     private List<GameObject> inventory;
     private Dictionary<Item.Slot, GameObject> currentlyEquipped;
@@ -55,8 +56,8 @@ public class FinalGame : Game
         currentlyEquipped = new Dictionary<Item.Slot, GameObject>();
         inventory = new List<GameObject>();
         random = new Random();
-        enemies = new List<GameObject>();
-        playerBullets = new List<GameObject>();
+        enemies = new List<BasicEnemy>();
+        playerBullets = new List<FinalBullet>();
         itemsOnField = new List<GameObject>();
         guiElements = new List<GUIElement>();
         camera = new Camera();
@@ -74,7 +75,8 @@ public class FinalGame : Game
     protected override void LoadContent()
     {
         _spriteBatch = new SpriteBatch(GraphicsDevice);
-        ScreenManager.Setup(false, 1920, 1080); 
+        ScreenManager.Setup(false, 1920, 1080);
+        ScreenManager.SpriteBatch = _spriteBatch;
 
         playerModel = Content.Load<Model>("Helicopter");
         enemyModel = Content.Load<Model>("Sphere");
@@ -87,11 +89,11 @@ public class FinalGame : Game
             light);
 
         spawnEnemy(new Vector3(-10, 0, 0));
-        //spawnEnemy(new Vector3(10, 0, 0));
-        //spawnEnemy(new Vector3(10, 0, 10));
-        //spawnEnemy(new Vector3(10, 0, -10));
-        //spawnEnemy(new Vector3(-10, 0, 10));
-        //spawnEnemy(new Vector3(-10, 0, -10));
+        spawnEnemy(new Vector3(10, 0, 0));
+        spawnEnemy(new Vector3(10, 0, 10));
+        spawnEnemy(new Vector3(10, 0, -10));
+        spawnEnemy(new Vector3(-10, 0, 10));
+        spawnEnemy(new Vector3(-10, 0, -10));
 
         plane = new Plane(new Vector3(0, 0, 0), Vector3.Up);
         currentAOE = new AOEAttack(Content.Load<Model>("Sphere"), null, player.Transform.Position, Content, camera,
@@ -145,15 +147,17 @@ public class FinalGame : Game
             eHits.Add(e.Get<Collider>().Intersects(ray));
         }
 
+        bool setOthers = false;
         for (int i = 0; i < enemies.Count; i++)
         {
             if (eHits[i] != null)
             {
                 //(enemies[i].Renderer.ObjectModel.Meshes[0].Effects[0] as BasicEffect).DiffuseColor =
-                enemies[i].Renderer.color =
-                    Color.DarkRed.ToVector3();
+                enemies[i].hovered = true;
                 if (InputManager.isMouseRightClicked())
                 {
+                    enemies[i].selected = true;
+                    setOthers = true;
                     Vector3 worldPoint = ray.Position + p.Value * ray.Direction;
                     player.Get<PlayerController>().target = worldPoint;
                     player.Get<PlayerController>().distanceToTarget = 15f;
@@ -163,8 +167,8 @@ public class FinalGame : Game
             else
             {
                 //(enemies[i].Renderer.ObjectModel.Meshes[0].Effects[0] as BasicEffect).DiffuseColor =
-                enemies[i].Renderer.color =
-                    Color.Red.ToVector3();
+                if (setOthers) enemies[i].selected = false;
+                enemies[i].hovered = false;
             } 
         }
         
@@ -230,13 +234,14 @@ public class FinalGame : Game
         player.Update();
         for (int i = 0; i < enemies.Count; i++)
         {
-            GameObject enemy = enemies[i];
+            BasicEnemy enemy = (BasicEnemy) enemies[i];
             if (enemy == null)
             {
                 enemies.Remove(enemy);
             } 
             else
             {
+                enemy.otherEnemies = enemies;
                 enemy.Update();
             }
         }
@@ -335,14 +340,14 @@ public class FinalGame : Game
 
     private void spawnEnemy(Vector3 enemyPos)
     {
-        GameObject enemy = new BasicEnemy(Content.Load<Model>("Sphere"), null, enemyPos, Content, camera,
-            GraphicsDevice, light, player);
+        BasicEnemy enemy = new BasicEnemy(Content.Load<Model>("Sphere"), null, enemyPos, Content, camera,
+            GraphicsDevice, light, player, enemies);
         enemies.Add(enemy);
     }
 
     private void playerShoot()
     {
-        GameObject bullet = new FinalBullet(Content.Load<Model>("Sphere"), null, Content, camera,
+        FinalBullet bullet = new FinalBullet(Content.Load<Model>("Sphere"), null, Content, camera,
             GraphicsDevice, light);
         bullet.Transform.Position = player.Transform.Position;
         Vector3 direction = player.Get<PlayerController>().target - player.Transform.Position;
@@ -547,10 +552,9 @@ public class FinalGame : Game
                 if (currentAOE.isActive())
                 {
                     //if (currentAOE.Get<Collider>().Collides(enemies[i].Collider, out normal) &&
-                    if (Vector3.Distance(currentAOE.Transform.Position, enemies[i].Transform.Position) <= 4.75f &&
-                        enemies[i].Tag != "iFrames")
+                    if (Vector3.Distance(currentAOE.Transform.Position, enemies[i].Transform.Position) <= 4.75f)
                     {
-                        enemies[i].Tag = "iFrames";
+                        //enemies[i].Tag = "iFrames";
                         if (enemies[i].Get<Health>().TakeDamage(100))
                         {
                             spawnItem(enemies[i].Transform.Position);
@@ -586,7 +590,7 @@ public class FinalGame : Game
                     if (enemies[i].Get<Collider>().Collides(player.Get<Collider>(), out normal))
                     {
                         // player takes damage
-                        Console.WriteLine("Player Damaged!");
+                        player.Get<Health>().TakeDamage(10);
                     }
                 }
 

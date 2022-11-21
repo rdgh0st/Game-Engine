@@ -19,8 +19,9 @@ public class ProgressBar : Sprite
 
     public override void Draw(SpriteBatch spriteBatch)
     {
-        base.Draw(spriteBatch);
-        spriteBatch.Draw(Texture, Position, Source, progressColor, Rotation, Origin, new Vector2(2 * progressScale, 1), Effects, Layer);
+        //base.Draw(spriteBatch);
+        spriteBatch.Draw(Texture, Position, Source, Color.White, Rotation, Origin, Scale, Effects, Layer);
+        spriteBatch.Draw(Texture, Position, Source, progressColor, Rotation, Origin, new Vector2(Scale.X * progressScale, Scale.Y), Effects, Layer);
     }
 
     public void setProgressScale(float scale)

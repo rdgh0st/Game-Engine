@@ -7,6 +7,9 @@ namespace CPI311.GameEngine;
 
 public class Player : GameObject
 {
+    public float iFramesDuration { get; set; } = 2;
+    private float iFramesTimer;
+    private bool drawn = true;
     public Player(Model playerModel, Texture2D playerTexture, ContentManager Content, Camera camera, GraphicsDevice 
         graphicsDevice, Light light) : base()
     {
@@ -23,5 +26,30 @@ public class Player : GameObject
         Add<Collider>(sphereCollider);
         Health health = new Health(100);
         Add(health);
+    }
+
+    public override void Update()
+    {
+        base.Update();
+        if (Tag == "iFrames")
+        {
+            iFramesTimer += Time.ElapsedGameTime;
+            drawn = !drawn;
+        }
+
+        if (iFramesTimer >= iFramesDuration)
+        {
+            Tag = "";
+            drawn = true;
+            iFramesTimer = 0;
+        }
+    }
+
+    public override void Draw()
+    {
+        if (drawn)
+        {
+            base.Draw();
+        }
     }
 }

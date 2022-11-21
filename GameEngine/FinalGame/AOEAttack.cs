@@ -11,9 +11,9 @@ public class AOEAttack : GameObject
 {
     private float duration = 0.5f;
     public float timer { get; set; } = 0.5f;
-    private List<GameObject> enemies;
+    private List<BasicEnemy> enemies;
     public AOEAttack(Model aoeModel, Texture2D aoeTexture, Vector3 currentPos, ContentManager Content, Camera camera, GraphicsDevice
-        graphicsDevice, Light light, List<GameObject> enemies) : base()
+        graphicsDevice, Light light, List<BasicEnemy> enemies) : base()
     {
         Transform.Position = currentPos;
         Transform.Scale = new Vector3(3, 1, 3);

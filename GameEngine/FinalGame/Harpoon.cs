@@ -16,10 +16,10 @@ public class Harpoon : GameObject
     public bool activeSelf { get; set; } = false;
     public bool retracting { get; set; } = false;
     public float expirationRange { get; set; } = 20;
-    private List<GameObject> enemies;
+    private List<BasicEnemy> enemies;
     private BasicEffect effect;
     public Harpoon(Model aoeModel, Texture2D aoeTexture, Vector3 currentPos, ContentManager Content, Camera camera, GraphicsDevice
-        graphicsDevice, Light light, List<GameObject> enemies, GameObject player) : base()
+        graphicsDevice, Light light, List<BasicEnemy> enemies, GameObject player) : base()
     {
         Transform.Position = currentPos;
         Transform.Scale = new Vector3(0.25f, 0.25f, 0.25f);

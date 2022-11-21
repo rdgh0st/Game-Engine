@@ -45,6 +45,7 @@ public class PlayerController : Component, IUpdateable
     {
         aoeTimer += Time.ElapsedGameTime;
         harpoonTimer += Time.ElapsedGameTime;
+        shotTimer += Time.ElapsedGameTime;
         
         switch (CurrentState)
         {
@@ -61,7 +62,6 @@ public class PlayerController : Component, IUpdateable
                 CurrentState = State.ShootCooldown;
                 break;
             case State.ShootCooldown:
-                shotTimer += Time.ElapsedGameTime;
                 if (shotTimer >= TimeToShoot)
                 {
                     CurrentState = State.Shooting;
@@ -77,6 +77,10 @@ public class PlayerController : Component, IUpdateable
 
         Quaternion currentRot = GetRotation(Vector3.Forward, Transform.Forward, Vector3.Up, out var currentAngle);
         Quaternion targetRot = GetRotation(Vector3.Forward, newForward, Vector3.Up, out var rotAngle);
+        if (currentRot == targetRot)
+        {
+            return;
+        }
 
         if (Math.Abs(currentAngle - rotAngle) < 0.15f)
         {
@@ -96,10 +100,12 @@ public class PlayerController : Component, IUpdateable
             if (distanceToTarget == 0.5f)
             {
                 CurrentState = State.Still;
+                return;
             }
             else
             {
                 CurrentState = State.ShootCooldown;
+                return;
             }
         }
         float finalSpeed = (distance / MoveSpeed);
