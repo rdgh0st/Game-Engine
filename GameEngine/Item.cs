@@ -51,18 +51,18 @@ public class Item : Component
         color = CurrentRarity switch
         {
             Rarity.Common => Color.White,
-            Rarity.Uncommon => Color.Green,
-            Rarity.Rare => Color.MediumBlue,
+            Rarity.Uncommon => Color.DarkGreen,
+            Rarity.Rare => Color.LightCoral,
             Rarity.Epic => Color.Purple,
             Rarity.Legendary => Color.Gold
         };
         name += CurrentSlot switch
         {
-            Slot.Armor => "Armor Of ",
-            Slot.Boots => "Boots Of ",
-            Slot.Hat => "Hat Of ",
-            Slot.Legs => "Legs Of ",
-            Slot.Weapon => "Pistol Of "
+            Slot.Armor => "Hull Of ",
+            Slot.Boots => "Rudder Of ",
+            Slot.Hat => "Flag Of ",
+            Slot.Legs => "Sail Of ",
+            Slot.Weapon => "Cannons Of "
         };
         name += CurrentRarity switch
         {

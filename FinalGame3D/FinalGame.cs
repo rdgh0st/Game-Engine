@@ -24,7 +24,7 @@ public class FinalGame : Game
     private Light light;
     private Model playerModel;
     private Plane plane;
-    private Model enemyModel;
+    private Sprite background;
     private List<BasicEnemy> enemies;
     private List<FinalBullet> playerBullets;
     private List<GameObject> itemsOnField;
@@ -78,8 +78,10 @@ public class FinalGame : Game
         ScreenManager.Setup(false, 1920, 1080);
         ScreenManager.SpriteBatch = _spriteBatch;
 
-        playerModel = Content.Load<Model>("Helicopter");
-        enemyModel = Content.Load<Model>("Sphere");
+        playerModel = Content.Load<Model>("shipNew");
+        background = new Sprite(Content.Load<Texture2D>("ocean"));
+        background.Layer = 0.1f;
+        background.Scale = new Vector2(3, 2);
         font = Content.Load<SpriteFont>("font");
         particleManager = new ParticleManager(GraphicsDevice, 100);
         particleEffect = Content.Load<Effect>("ParticleShader-complete");
@@ -271,12 +273,39 @@ public class FinalGame : Game
         GraphicsDevice.Clear(Color.CornflowerBlue);
         GraphicsDevice.DepthStencilState = new DepthStencilState();
         GraphicsDevice.Viewport = camera.Viewport;
+        background.Draw(_spriteBatch);
 
+        for (int i = 0; i < itemsOnField.Count; i++)
+        {
+            GameObject item = itemsOnField[i];
+            if (item.Get<Item>().drawName)
+                _spriteBatch.DrawString(font, item.Get<Item>().name, item.Get<Item>().drawCoords, item.Get<Item>().color);
+        }
+
+        if (currentlyEquipped.ContainsKey(Item.Slot.Hat) && currentlyEquipped[Item.Slot.Hat] != null)
+            _spriteBatch.DrawString(font, "Current Flag: " + currentlyEquipped[Item.Slot.Hat].Get<Item>().name, new Vector2(30, 30), currentlyEquipped[Item.Slot.Hat].Get<Item>().color);
         
-        currentAOE?.Draw();
+        if (currentlyEquipped.ContainsKey(Item.Slot.Armor) && currentlyEquipped[Item.Slot.Armor] != null)
+            _spriteBatch.DrawString(font, "Current Hull: " + currentlyEquipped[Item.Slot.Armor].Get<Item>().name, new Vector2(30, 50), currentlyEquipped[Item.Slot.Armor].Get<Item>().color);
+        
+        if (currentlyEquipped.ContainsKey(Item.Slot.Weapon) && currentlyEquipped[Item.Slot.Weapon] != null)
+            _spriteBatch.DrawString(font, "Current Cannons: " + currentlyEquipped[Item.Slot.Weapon].Get<Item>().name, new Vector2(30, 70), currentlyEquipped[Item.Slot.Weapon].Get<Item>().color);
+        
+        if (currentlyEquipped.ContainsKey(Item.Slot.Legs) && currentlyEquipped[Item.Slot.Legs] != null)
+            _spriteBatch.DrawString(font, "Current Sail: " + currentlyEquipped[Item.Slot.Legs].Get<Item>().name, new Vector2(30, 90), currentlyEquipped[Item.Slot.Legs].Get<Item>().color);
+        
+        if (currentlyEquipped.ContainsKey(Item.Slot.Boots) && currentlyEquipped[Item.Slot.Boots] != null)
+            _spriteBatch.DrawString(font, "Current Rudder: " + currentlyEquipped[Item.Slot.Boots].Get<Item>().name, new Vector2(30, 110), currentlyEquipped[Item.Slot.Boots].Get<Item>().color);
+
+        for (int i = 0; i < guiElements.Count; i++)
+        {
+            guiElements[i].Draw(_spriteBatch, font);
+        }
+        _spriteBatch.End();
+        
+        player.Draw();
         harpoon.Draw();
         //player.Renderer.Material.Diffuse = Color.White.ToVector3();
-        player.Draw();
 
         //plane.Renderer.Material.Diffuse = Color.White.ToVector3();
         for (int i = 0; i < enemies.Count; i++)
@@ -290,37 +319,14 @@ public class FinalGame : Game
             GameObject bullet = playerBullets[i];
             bullet.Draw();
         }
-
+        
         for (int i = 0; i < itemsOnField.Count; i++)
         {
             GameObject item = itemsOnField[i];
             item.Draw();
-            if (item.Get<Item>().drawName)
-                _spriteBatch.DrawString(font, item.Get<Item>().name, item.Get<Item>().drawCoords, item.Get<Item>().color);
-        }
-
-        if (currentlyEquipped.ContainsKey(Item.Slot.Hat) && currentlyEquipped[Item.Slot.Hat] != null)
-            _spriteBatch.DrawString(font, "Current Hat: " + currentlyEquipped[Item.Slot.Hat].Get<Item>().name, new Vector2(30, 30), currentlyEquipped[Item.Slot.Hat].Get<Item>().color);
-        
-        if (currentlyEquipped.ContainsKey(Item.Slot.Armor) && currentlyEquipped[Item.Slot.Armor] != null)
-            _spriteBatch.DrawString(font, "Current Armor: " + currentlyEquipped[Item.Slot.Armor].Get<Item>().name, new Vector2(30, 50), currentlyEquipped[Item.Slot.Armor].Get<Item>().color);
-        
-        if (currentlyEquipped.ContainsKey(Item.Slot.Weapon) && currentlyEquipped[Item.Slot.Weapon] != null)
-            _spriteBatch.DrawString(font, "Current Weapon: " + currentlyEquipped[Item.Slot.Weapon].Get<Item>().name, new Vector2(30, 70), currentlyEquipped[Item.Slot.Weapon].Get<Item>().color);
-        
-        if (currentlyEquipped.ContainsKey(Item.Slot.Legs) && currentlyEquipped[Item.Slot.Legs] != null)
-            _spriteBatch.DrawString(font, "Current Legs: " + currentlyEquipped[Item.Slot.Legs].Get<Item>().name, new Vector2(30, 90), currentlyEquipped[Item.Slot.Legs].Get<Item>().color);
-        
-        if (currentlyEquipped.ContainsKey(Item.Slot.Boots) && currentlyEquipped[Item.Slot.Boots] != null)
-            _spriteBatch.DrawString(font, "Current Boots: " + currentlyEquipped[Item.Slot.Boots].Get<Item>().name, new Vector2(30, 110), currentlyEquipped[Item.Slot.Boots].Get<Item>().color);
-
-        for (int i = 0; i < guiElements.Count; i++)
-        {
-            guiElements[i].Draw(_spriteBatch, font);
         }
         
-        _spriteBatch.End();
-        
+        currentAOE?.Draw();
         //particle draw
         /*
         GraphicsDevice.DepthStencilState = DepthStencilState.DepthRead;
@@ -334,7 +340,6 @@ public class FinalGame : Game
         particleManager.Draw(GraphicsDevice);
         GraphicsDevice.RasterizerState = RasterizerState.CullNone;
         */
-        
         base.Draw(gameTime);
     }
 

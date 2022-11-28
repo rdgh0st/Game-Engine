@@ -14,12 +14,14 @@ public class Player : GameObject
         graphicsDevice, Light light) : base()
     {
         Transform.Position = new Vector3(0, 0, 0);
+        //Transform.Rotate(Vector3.Left, MathHelper.ToRadians(90));
+        //Transform.Scale = new Vector3(0.25f, 0.25f, 0.25f);
         PlayerController controller = new PlayerController(new Vector3(20, 0, 20));
         controller.TurnSpeed = 10;
         controller.MoveSpeed = 10;
         controller.TimeToShoot = 1.5f;
         Add<PlayerController>(controller);
-        Renderer playerRenderer = new Renderer(playerModel, Transform, camera, Content, graphicsDevice, light, null, 2, 20f, playerTexture);
+        Renderer playerRenderer = new Renderer(playerModel, Transform, camera, Content, graphicsDevice, light, null, 0, 20f, null);
         Add<Renderer>(playerRenderer);
         SphereCollider sphereCollider = new SphereCollider();
         sphereCollider.Radius = 1.0f * Transform.LocalScale.Y;
@@ -49,6 +51,7 @@ public class Player : GameObject
     {
         if (drawn)
         {
+            Renderer.color = Color.SandyBrown.ToVector3();
             base.Draw();
         }
     }

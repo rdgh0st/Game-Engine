@@ -54,9 +54,17 @@ public class Renderer : Component, IRenderable
         }
         else
         {
-            if (color != null)
+            foreach (ModelMesh mesh in ObjectModel.Meshes)
             {
-                (ObjectModel.Meshes[0].Effects[0] as BasicEffect).DiffuseColor = color.Value;
+                foreach (BasicEffect effect in mesh.Effects)
+                {
+                    effect.EnableDefaultLighting();
+                    effect.PreferPerPixelLighting = true;
+                    if (color != null)
+                    {
+                        effect.DiffuseColor = color.Value;
+                    }
+                }
             }
             ObjectModel.Draw(Transform.World,Camera.View, Camera.Projection);
         }

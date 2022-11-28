@@ -27,7 +27,7 @@ public class BasicEnemy : GameObject
         graphicsDevice, Light light, GameObject player, List<BasicEnemy> otherEnemies) : base()
     {
         Transform.Position = enemyPos;
-        Renderer enemyRenderer = new Renderer(Content.Load<Model>("Sphere"), Transform, camera, Content,
+        Renderer enemyRenderer = new Renderer(Content.Load<Model>("shipNew"), Transform, camera, Content,
             graphicsDevice, light, null, 0, 20f, enemyTexture);
         Add<Renderer>(enemyRenderer);
         SphereCollider sphereCollider = new SphereCollider();
@@ -135,7 +135,9 @@ public class BasicEnemy : GameObject
 
         if (selected)
         {
+            ScreenManager.SpriteBatch.Begin();
             healthBar.Draw(ScreenManager.SpriteBatch);
+            ScreenManager.SpriteBatch.End();
         }
     }
     

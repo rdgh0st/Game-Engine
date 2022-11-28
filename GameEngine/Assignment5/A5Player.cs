@@ -34,8 +34,8 @@ public class A5Player : GameObject
     {
         // Control the player
         if (InputManager.IsKeyDown(Keys.W)) // move forward
-            //this.Transform.LocalPosition += 
-        if (InputManager.IsKeyDown(Keys.S)) // move backwars
+            this.Transform.LocalPosition += this.Transform.Forward * Time.ElapsedGameTime;
+        if (InputManager.IsKeyDown(Keys.S)) // move backward
             
 // change the Y position corresponding to the terrain (maze)
         this.Transform.LocalPosition = new Vector3(
