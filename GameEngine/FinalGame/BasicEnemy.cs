@@ -185,7 +185,7 @@ public class BasicEnemy : GameObject
                 }
                 for (int i = 0; i < otherEnemies.Count; i++)
                 {
-                    if (otherEnemies[i] != this && Vector3.Distance(node.Position, otherEnemies[i].Transform.Position) < 4)
+                    if (otherEnemies[i] != null && otherEnemies[i] != this && Vector3.Distance(node.Position, otherEnemies[i].Transform.Position) < 4)
                     {
                         node.Passable = false;
                     }

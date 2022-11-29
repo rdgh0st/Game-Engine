@@ -18,6 +18,7 @@ public class FinalGame : Game
     private GraphicsDeviceManager _graphics;
     private SpriteBatch _spriteBatch;
     private SpriteFont font;
+    private SpriteFont titleFont;
     private Random random;
     private GameObject player;
     private Camera camera;
@@ -40,6 +41,17 @@ public class FinalGame : Game
     ParticleManager particleManager;
     Texture2D particleTex;
     Effect particleEffect;
+    private float timeToSpawn = 20;
+    private enum GameState
+    {
+        Gameplay,
+        Title,
+        Controls,
+        GameOver
+    }
+    private GameState currentState = GameState.Title;
+    private Button ToGame;
+    private Button ToControls;
 
     public FinalGame()
     {
@@ -83,27 +95,31 @@ public class FinalGame : Game
         background.Layer = 0.1f;
         background.Scale = new Vector2(3, 2);
         font = Content.Load<SpriteFont>("font");
+        titleFont = Content.Load<SpriteFont>("titlefont");
         particleManager = new ParticleManager(GraphicsDevice, 100);
         particleEffect = Content.Load<Effect>("ParticleShader-complete");
         particleTex = Content.Load<Texture2D>("fire");
+        ToGame = new Button();
+        ToGame.Texture = Content.Load<Texture2D>("Square");
+        ToGame.Text = "PLAY";
+        ToGame.fontColor = Color.Red;
+        ToGame.Bounds = new Rectangle(2 * GraphicsDevice.Viewport.Width / 3, GraphicsDevice.Viewport.Height / 2, 120, 70);
+        ToGame.Action += sender =>
+        {
+            currentState = GameState.Gameplay;
+            ThreadPool.QueueUserWorkItem(new WaitCallback(BulletEnemyCollision));
+            ThreadPool.QueueUserWorkItem(new WaitCallback(PlayerCollisions));
+            ThreadPool.QueueUserWorkItem(new WaitCallback(SpawnWave));
+        };
 
-        player = new Player(playerModel, Content.Load<Texture2D>("HelicopterTexture"), Content, camera, GraphicsDevice,
+        player = new Player(playerModel, null, Content, camera, GraphicsDevice,
             light);
-
-        spawnEnemy(new Vector3(-10, 0, 0));
-        spawnEnemy(new Vector3(10, 0, 0));
-        spawnEnemy(new Vector3(10, 0, 10));
-        spawnEnemy(new Vector3(10, 0, -10));
-        spawnEnemy(new Vector3(-10, 0, 10));
-        spawnEnemy(new Vector3(-10, 0, -10));
 
         plane = new Plane(new Vector3(0, 0, 0), Vector3.Up);
         currentAOE = new AOEAttack(Content.Load<Model>("Sphere"), null, player.Transform.Position, Content, camera,
             GraphicsDevice, light, enemies);
         harpoon = new Harpoon(Content.Load<Model>("Sphere"), null, player.Transform.Position, Content, camera,
             GraphicsDevice, light, enemies, player);
-        ThreadPool.QueueUserWorkItem(new WaitCallback(BulletEnemyCollision));
-        ThreadPool.QueueUserWorkItem(new WaitCallback(PlayerCollisions));
     }
 
     protected override void Update(GameTime gameTime)
@@ -111,6 +127,11 @@ public class FinalGame : Game
         if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape))
             Exit();
         InputManager.Update();
+        if (currentState == GameState.Title)
+        {
+            ToGame.Update();
+        }
+        if (currentState != GameState.Gameplay) return;
         Time.Update(gameTime);
 
         Ray ray = camera.ScreenPointToWorldRay(InputManager.GetMousePosition());
@@ -291,6 +312,19 @@ public class FinalGame : Game
         GraphicsDevice.DepthStencilState = new DepthStencilState();
         GraphicsDevice.Viewport = camera.Viewport;
         background.Draw(_spriteBatch);
+        if (currentState == GameState.GameOver)
+        {
+            _spriteBatch.DrawString(titleFont, "GAME OVER", new Vector2(_graphics.GraphicsDevice.Viewport.Width / 2, _graphics.GraphicsDevice.Viewport.Height / 2), Color.Red);
+            _spriteBatch.End();
+            return;
+        } 
+        if (currentState == GameState.Title)
+        {
+            _spriteBatch.DrawString(titleFont, "SALTY SEAS", new Vector2(_graphics.GraphicsDevice.Viewport.Width / 2 - 135, _graphics.GraphicsDevice.Viewport.Height / 2 - 150), Color.Red);
+            ToGame.Draw(_spriteBatch, titleFont);
+            _spriteBatch.End();
+            return;
+        }
 
         for (int i = 0; i < itemsOnField.Count; i++)
         {
@@ -550,7 +584,7 @@ public class FinalGame : Game
     
     private void BulletEnemyCollision(Object obj)
     {
-        while (true)
+        while (currentState == GameState.Gameplay)
         {
             Vector3 normal;
             for (int i = 0; i < enemies.Count; i++)
@@ -604,7 +638,7 @@ public class FinalGame : Game
     
     private void PlayerCollisions(Object obj)
     {
-        while (true)
+        while (currentState == GameState.Gameplay)
         {
             Vector3 normal;
                 for (int i = 0; i < enemies.Count; i++)
@@ -622,7 +656,10 @@ public class FinalGame : Game
                         }
                         else
                         {
-                            player.Get<Health>().TakeDamage(10);
+                            if (player.Get<Health>().TakeDamage(10))
+                            {
+                                currentState = GameState.GameOver;
+                            }
                         }
                     }
                 }
@@ -662,6 +699,21 @@ public class FinalGame : Game
                     }
                 }
             Thread.Sleep(16);
+        }
+    }
+
+    private void SpawnWave(Object obj)
+    {
+        while (currentState == GameState.Gameplay)
+        {
+            spawnEnemy(new Vector3(-10, 0, 0));
+            spawnEnemy(new Vector3(10, 0, 0));
+            spawnEnemy(new Vector3(10, 0, 10));
+            spawnEnemy(new Vector3(10, 0, -10));
+            spawnEnemy(new Vector3(-10, 0, 10));
+            spawnEnemy(new Vector3(-10, 0, -10));
+            float newTime = (timeToSpawn - 1) * 1000;
+            Thread.Sleep((int) MathF.Max(0, newTime));
         }
     }
 
