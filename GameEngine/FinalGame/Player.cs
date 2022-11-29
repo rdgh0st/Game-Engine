@@ -10,6 +10,8 @@ public class Player : GameObject
     public float iFramesDuration { get; set; } = 2;
     private float iFramesTimer;
     private bool drawn = true;
+    public float rushDuration { get; set; } = 1.5f;
+    private float rushTimer = 0f;
     public Player(Model playerModel, Texture2D playerTexture, ContentManager Content, Camera camera, GraphicsDevice 
         graphicsDevice, Light light) : base()
     {
@@ -28,10 +30,23 @@ public class Player : GameObject
         Add<Collider>(sphereCollider);
         Health health = new Health(100);
         Add(health);
+        RigidBody rigidbody = new RigidBody();
+        rigidbody.Mass = 1;
+        Add<RigidBody>(rigidbody);
     }
 
     public override void Update()
     {
+        if (Rigidbody.Velocity != Vector3.Zero)
+        {
+            rushTimer += Time.ElapsedGameTime;
+            if (rushTimer > rushDuration)
+            {
+                Get<PlayerController>().target = Transform.Position;
+                Rigidbody.Velocity = Vector3.Zero;
+                rushTimer = 0;
+            }
+        }
         base.Update();
         if (Tag == "iFrames")
         {

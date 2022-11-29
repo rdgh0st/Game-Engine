@@ -135,7 +135,15 @@ public class FinalGame : Game
                 harpoon.Get<RigidBody>().Velocity = direction * harpoonSpeed;
                 Console.WriteLine("Shooting from " + player.Transform.Position + " to " + worldPoint);
                 harpoon.activeSelf = true;
-            } 
+            }
+
+            if (InputManager.IsKeyPressed(Keys.E) && player.Get<PlayerController>().canRush())
+            {
+                Vector3 worldPoint = ray.Position + p.Value * ray.Direction;
+                Vector3 direction = worldPoint - player.Transform.Position;
+                direction.Normalize();
+                player.Rigidbody.Velocity = direction * harpoonSpeed;
+            }
         }
 
         List<float?> eHits = new List<float?>();
@@ -156,14 +164,23 @@ public class FinalGame : Game
             {
                 //(enemies[i].Renderer.ObjectModel.Meshes[0].Effects[0] as BasicEffect).DiffuseColor =
                 enemies[i].hovered = true;
+                Vector3 worldPoint = ray.Position + p.Value * ray.Direction;
                 if (InputManager.isMouseRightClicked())
                 {
                     enemies[i].selected = true;
                     setOthers = true;
-                    Vector3 worldPoint = ray.Position + p.Value * ray.Direction;
                     player.Get<PlayerController>().target = worldPoint;
                     player.Get<PlayerController>().distanceToTarget = 15f;
                     player.Get<PlayerController>().CurrentState = PlayerController.State.Turning;
+                }
+
+                if (InputManager.IsKeyPressed(Keys.R) && player.Get<PlayerController>().canUlt(worldPoint))
+                {
+                    spawnItem(enemies[i].Transform.Position);
+                    enemies[i] = null;
+                    enemies.RemoveAt(i);
+                    player.Get<PlayerController>().target = worldPoint;
+                    player.Transform.Position = worldPoint;
                 }
             }
             else
@@ -560,7 +577,7 @@ public class FinalGame : Game
                     if (Vector3.Distance(currentAOE.Transform.Position, enemies[i].Transform.Position) <= 4.75f)
                     {
                         //enemies[i].Tag = "iFrames";
-                        if (enemies[i].Get<Health>().TakeDamage(100))
+                        if (enemies[i].Get<Health>().TakeDamage(50))
                         {
                             spawnItem(enemies[i].Transform.Position);
                             enemies[i] = null;
@@ -594,8 +611,19 @@ public class FinalGame : Game
                 {
                     if (enemies[i].Get<Collider>().Collides(player.Get<Collider>(), out normal))
                     {
-                        // player takes damage
-                        player.Get<Health>().TakeDamage(10);
+                        if (player.Rigidbody.Velocity != Vector3.Zero)
+                        {
+                            if (enemies[i].Get<Health>().TakeDamage(50))
+                            {
+                                spawnItem(enemies[i].Transform.Position);
+                                enemies[i] = null;
+                                enemies.RemoveAt(i);
+                            }
+                        }
+                        else
+                        {
+                            player.Get<Health>().TakeDamage(10);
+                        }
                     }
                 }
 

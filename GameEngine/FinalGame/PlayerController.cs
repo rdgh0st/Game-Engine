@@ -25,6 +25,8 @@ public class PlayerController : Component, IUpdateable
     public float distanceToTarget { get; set; } = 0.5f;
     public float aoeCooldown { get; set; } = 5f;
     public float harpoonCooldown { get; set; } = 5f;
+    public float rushCooldown { get; set; } = 10f;
+    public float ultCooldown { get; set; } = 25f;
     public enum State
     {
         Turning, Pathing, Shooting, ShootCooldown, Harpooning, Still
@@ -35,6 +37,8 @@ public class PlayerController : Component, IUpdateable
     private float shotTimer = 1.5f;
     private float aoeTimer = 5f;
     private float harpoonTimer { get; set; } = 5f;
+    private float rushTimer = 10f;
+    private float ultTimer = 25f;
     
     public PlayerController(Vector3 t)
     {
@@ -46,6 +50,8 @@ public class PlayerController : Component, IUpdateable
         aoeTimer += Time.ElapsedGameTime;
         harpoonTimer += Time.ElapsedGameTime;
         shotTimer += Time.ElapsedGameTime;
+        rushTimer += Time.ElapsedGameTime;
+        ultTimer += Time.ElapsedGameTime;
         
         switch (CurrentState)
         {
@@ -150,6 +156,28 @@ public class PlayerController : Component, IUpdateable
         if (harpoonTimer >= harpoonCooldown)
         {
             harpoonTimer = 0;
+            return true;
+        }
+
+        return false;
+    }
+    
+    public bool canRush()
+    {
+        if (rushTimer >= rushCooldown)
+        {
+            rushTimer = 0;
+            return true;
+        }
+
+        return false;
+    }
+    
+    public bool canUlt(Vector3 enemyPos)
+    {
+        if (ultTimer >= ultCooldown && Vector3.Distance(Transform.Position, enemyPos) < 10)
+        {
+            ultTimer = 0;
             return true;
         }
 
