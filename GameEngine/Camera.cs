@@ -38,6 +38,11 @@ public class Camera : Component
     {
         get { return Matrix.CreatePerspectiveFieldOfView(FieldOfView, AspectRatio, NearPlane, FarPlane); }
     }
+
+    public Matrix OrthagProjection
+    {
+        get { return Matrix.CreateOrthographic(Viewport.Width, Viewport.Height, NearPlane, FarPlane); }
+    }
     public Matrix View
     {
         get

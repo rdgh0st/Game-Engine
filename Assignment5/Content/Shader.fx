@@ -115,7 +115,7 @@ PhongBlinnVertexOutput PhongBlinnVertex(VertexInput input)
 	output.Position = mul(viewPosition, Projection);
 	// as well as the normal in world space
 	output.WorldNormal = mul(input.Normal, World);
-	output.UV = input.UV * 10;
+	output.UV = input.UV;
 	return output;
 }
 float4 PhongBlinnPixel(PhongBlinnVertexOutput input) : COLOR0
@@ -148,7 +148,7 @@ SchlickVertexOutput SchlickVertex(VertexInput input)
 	output.Position = mul(viewPosition, Projection);
 	// as well as the normal in world space
 	output.WorldNormal = mul(input.Normal, World);
-	output.UV = input.UV * 10;
+	output.UV = input.UV;
 	return output;
 }
 // The pixel shader performs the lighting

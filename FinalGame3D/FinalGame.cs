@@ -99,11 +99,13 @@ public class FinalGame : Game
         particleManager = new ParticleManager(GraphicsDevice, 100);
         particleEffect = Content.Load<Effect>("ParticleShader-complete");
         particleTex = Content.Load<Texture2D>("fire");
-        ToGame = new Button();
-        ToGame.Texture = Content.Load<Texture2D>("Square");
-        ToGame.Text = "PLAY";
-        ToGame.fontColor = Color.Red;
-        ToGame.Bounds = new Rectangle(2 * GraphicsDevice.Viewport.Width / 3, GraphicsDevice.Viewport.Height / 2, 120, 70);
+        ToGame = new Button
+        {
+            Texture = Content.Load<Texture2D>("Square"),
+            Text = "PLAY",
+            fontColor = Color.Red,
+            Bounds = new Rectangle(2 * GraphicsDevice.Viewport.Width / 3, GraphicsDevice.Viewport.Height / 2, 120, 70)
+        };
         ToGame.Action += sender =>
         {
             currentState = GameState.Gameplay;
@@ -111,6 +113,18 @@ public class FinalGame : Game
             ThreadPool.QueueUserWorkItem(new WaitCallback(PlayerCollisions));
             ThreadPool.QueueUserWorkItem(new WaitCallback(SpawnWave));
         };
+        ToControls = new Button
+        {
+            Texture = Content.Load<Texture2D>("Square"),
+            Text = "CONTROLS",
+            fontColor = Color.Red,
+            Bounds = new Rectangle(GraphicsDevice.Viewport.Width / 3, GraphicsDevice.Viewport.Height / 2, 280, 70)
+        };
+        ToControls.Action += sender =>
+        {
+            currentState = GameState.Controls;
+        };
+        
 
         player = new Player(playerModel, null, Content, camera, GraphicsDevice,
             light);
@@ -130,6 +144,7 @@ public class FinalGame : Game
         if (currentState == GameState.Title)
         {
             ToGame.Update();
+            ToControls.Update();
         }
         if (currentState != GameState.Gameplay) return;
         Time.Update(gameTime);
@@ -322,6 +337,7 @@ public class FinalGame : Game
         {
             _spriteBatch.DrawString(titleFont, "SALTY SEAS", new Vector2(_graphics.GraphicsDevice.Viewport.Width / 2 - 135, _graphics.GraphicsDevice.Viewport.Height / 2 - 150), Color.Red);
             ToGame.Draw(_spriteBatch, titleFont);
+            ToControls.Draw(_spriteBatch, titleFont);
             _spriteBatch.End();
             return;
         }

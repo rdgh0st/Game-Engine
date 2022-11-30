@@ -1,3 +1,4 @@
+using System;
 using CPI311.GameEngine.Physics;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
@@ -27,17 +28,22 @@ public class A5Player : GameObject
         Texture2D texture2D = Content.Load<Texture2D>("Square");
         Renderer renderer = new Renderer(Content.Load<Model>("Sphere"), Transform, camera, Content, graphicsDevice,
             light, "Shader", 2, 20, texture2D);
+        Add<Renderer>(renderer);
         // Add other component required for Player
     } 
     
     public override void Update() 
     {
         // Control the player
-        if (InputManager.IsKeyDown(Keys.W)) // move forward
-            this.Transform.LocalPosition += this.Transform.Forward * Time.ElapsedGameTime;
-        if (InputManager.IsKeyDown(Keys.S)) // move backward
-            
-// change the Y position corresponding to the terrain (maze)
+        if (InputManager.IsKeyDown(Keys.W) && Terrain.GetAltitude(Transform.LocalPosition + Transform.Forward * Time.ElapsedGameTime * 10) < 1) // move forward
+            this.Transform.LocalPosition += this.Transform.Forward * Time.ElapsedGameTime * 10;
+        if (InputManager.IsKeyDown(Keys.S) && Terrain.GetAltitude(Transform.LocalPosition + Transform.Backward * Time.ElapsedGameTime * 10) < 1) // move backward
+            Transform.LocalPosition += Transform.Backward * Time.ElapsedGameTime * 10;
+        if (InputManager.IsKeyDown(Keys.A) && Terrain.GetAltitude(Transform.LocalPosition + Transform.Left * Time.ElapsedGameTime * 10) < 1)
+            Transform.LocalPosition += Transform.Left * Time.ElapsedGameTime * 10;
+        if (InputManager.IsKeyDown(Keys.D) && Terrain.GetAltitude(Transform.LocalPosition + Transform.Right * Time.ElapsedGameTime * 10) < 1)
+            Transform.LocalPosition += Transform.Right * Time.ElapsedGameTime * 10;
+        // change the Y position corresponding to the terrain (maze)
         this.Transform.LocalPosition = new Vector3(
             this.Transform.LocalPosition.X,
             Terrain.GetAltitude(this.Transform.LocalPosition),
