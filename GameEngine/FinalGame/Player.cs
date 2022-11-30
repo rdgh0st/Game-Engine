@@ -12,6 +12,7 @@ public class Player : GameObject
     private bool drawn = true;
     public float rushDuration { get; set; } = 1.5f;
     private float rushTimer = 0f;
+    private ProgressBar healthBar;
     public Player(Model playerModel, Texture2D playerTexture, ContentManager Content, Camera camera, GraphicsDevice 
         graphicsDevice, Light light) : base()
     {
@@ -33,6 +34,9 @@ public class Player : GameObject
         RigidBody rigidbody = new RigidBody();
         rigidbody.Mass = 1;
         Add<RigidBody>(rigidbody);
+        healthBar = new ProgressBar(Content.Load<Texture2D>("Square"), Color.Red);
+        healthBar.Scale = new Vector2(5, 1);
+        healthBar.Position = new Vector2(graphicsDevice.Viewport.Width - 200, 60);
     }
 
     public override void Update()
@@ -47,6 +51,7 @@ public class Player : GameObject
                 rushTimer = 0;
             }
         }
+        healthBar.setProgressScale(Get<Health>().CurrentHealth / Get<Health>().MaxHealth);
         base.Update();
         if (Tag == "iFrames")
         {
@@ -69,5 +74,9 @@ public class Player : GameObject
             Renderer.color = Color.SandyBrown.ToVector3();
             base.Draw();
         }
+        
+        ScreenManager.SpriteBatch.Begin();
+        healthBar.Draw(ScreenManager.SpriteBatch);
+        ScreenManager.SpriteBatch.End();
     }
 }

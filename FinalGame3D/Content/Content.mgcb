@@ -32,6 +32,18 @@
 /processorParam:TextureFormat=Compressed
 /build:box.fbx
 
+#begin explosion2.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:explosion2.wav
+
+#begin explosion3.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:explosion3.wav
+
 #begin fire.png
 /importer:TextureImporter
 /processor:TextureProcessor

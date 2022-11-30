@@ -8,6 +8,7 @@ using CPI311.GameEngine;
 using CPI311.GameEngine.GUI;
 using CPI311.GameEngine.Physics;
 using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Audio;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 
@@ -41,6 +42,10 @@ public class FinalGame : Game
     ParticleManager particleManager;
     Texture2D particleTex;
     Effect particleEffect;
+    private SoundEffect explosion;
+    private SoundEffect hitSoundEffect;
+    private SoundEffectInstance explosionInstance;
+    private SoundEffectInstance hitSoundEffectInstance;
     private float timeToSpawn = 20;
     private enum GameState
     {
@@ -52,6 +57,8 @@ public class FinalGame : Game
     private GameState currentState = GameState.Title;
     private Button ToGame;
     private Button ToControls;
+    private Button ToMain;
+    private float score;
 
     public FinalGame()
     {
@@ -99,6 +106,8 @@ public class FinalGame : Game
         particleManager = new ParticleManager(GraphicsDevice, 100);
         particleEffect = Content.Load<Effect>("ParticleShader-complete");
         particleTex = Content.Load<Texture2D>("fire");
+        explosion = Content.Load<SoundEffect>("explosion2");
+        hitSoundEffect = Content.Load<SoundEffect>("explosion3");
         ToGame = new Button
         {
             Texture = Content.Load<Texture2D>("Square"),
@@ -118,11 +127,22 @@ public class FinalGame : Game
             Texture = Content.Load<Texture2D>("Square"),
             Text = "CONTROLS",
             fontColor = Color.Red,
-            Bounds = new Rectangle(GraphicsDevice.Viewport.Width / 3, GraphicsDevice.Viewport.Height / 2, 280, 70)
+            Bounds = new Rectangle(GraphicsDevice.Viewport.Width / 3, GraphicsDevice.Viewport.Height / 2, 220, 70)
         };
         ToControls.Action += sender =>
         {
             currentState = GameState.Controls;
+        };
+        ToMain = new Button
+        {
+            Texture = Content.Load<Texture2D>("Square"),
+            Text = "BACK",
+            fontColor = Color.Red,
+            Bounds = new Rectangle(GraphicsDevice.Viewport.Width / 2 - 75, 3 * GraphicsDevice.Viewport.Height / 4, 120, 70)
+        };
+        ToMain.Action += sender =>
+        {
+            currentState = GameState.Title;
         };
         
 
@@ -145,6 +165,9 @@ public class FinalGame : Game
         {
             ToGame.Update();
             ToControls.Update();
+        } else if (currentState == GameState.Controls)
+        {
+            ToMain.Update();
         }
         if (currentState != GameState.Gameplay) return;
         Time.Update(gameTime);
@@ -187,8 +210,6 @@ public class FinalGame : Game
         for (int i = 0; i < enemies.Count; i++)
         {
             GameObject e = enemies[i];
-            //Console.WriteLine(e + " " + e.Get<Collider>().Intersects(ray));
-            // ReSharper disable once HeapView.BoxingAllocation
             enemyHits.Add(e, e.Get<Collider>().Intersects(ray));
             eHits.Add(e.Get<Collider>().Intersects(ray));
         }
@@ -198,7 +219,6 @@ public class FinalGame : Game
         {
             if (eHits[i] != null)
             {
-                //(enemies[i].Renderer.ObjectModel.Meshes[0].Effects[0] as BasicEffect).DiffuseColor =
                 enemies[i].hovered = true;
                 Vector3 worldPoint = ray.Position + p.Value * ray.Direction;
                 if (InputManager.isMouseRightClicked())
@@ -261,7 +281,6 @@ public class FinalGame : Game
             }
             else
             {
-                //(enemies[i].Renderer.ObjectModel.Meshes[0].Effects[0] as BasicEffect).DiffuseColor =
                 itemsOnField[i].Get<Item>().drawName = false;
             } 
         }
@@ -275,15 +294,8 @@ public class FinalGame : Game
         {
             currentAOE.SetPosition(player.Transform.Position);
             currentAOE.timer = 0;
-            /*
-            Particle particle = particleManager.getNext();
-            particle.Position = currentAOE.Transform.Position;
-            particle.Velocity = new Vector3(
-                2, 2, 2);
-            particle.Acceleration = new Vector3(3, 3, 3);
-            particle.MaxAge = 6;
-            particle.Init();
-            */
+            explosionInstance = explosion.CreateInstance();
+            explosionInstance.Play();
         }
 
         player.Update();
@@ -329,7 +341,8 @@ public class FinalGame : Game
         background.Draw(_spriteBatch);
         if (currentState == GameState.GameOver)
         {
-            _spriteBatch.DrawString(titleFont, "GAME OVER", new Vector2(_graphics.GraphicsDevice.Viewport.Width / 2, _graphics.GraphicsDevice.Viewport.Height / 2), Color.Red);
+            _spriteBatch.DrawString(titleFont, "GAME OVER", new Vector2(_graphics.GraphicsDevice.Viewport.Width / 2 - 125, _graphics.GraphicsDevice.Viewport.Height / 2 - 100), Color.Red);
+            _spriteBatch.DrawString(titleFont, "FINAL SCORE: " + score, new Vector2(_graphics.GraphicsDevice.Viewport.Width / 2 - 175, _graphics.GraphicsDevice.Viewport.Height / 2 + 100), Color.White);
             _spriteBatch.End();
             return;
         } 
@@ -342,12 +355,33 @@ public class FinalGame : Game
             return;
         }
 
+        if (currentState == GameState.Controls)
+        {
+            _spriteBatch.DrawString(titleFont, "CONTROLS", new Vector2(_graphics.GraphicsDevice.Viewport.Width / 2 - 110, _graphics.GraphicsDevice.Viewport.Height / 2 - 200), Color.Red);
+            _spriteBatch.DrawString(font, "Right Click: Move/Attack Enemy", new Vector2(GraphicsDevice.Viewport.Width / 3, GraphicsDevice.Viewport.Height / 2 - 120), Color.White);
+            _spriteBatch.DrawString(font, "Q: Small Explosion Around Ship", new Vector2(GraphicsDevice.Viewport.Width / 3, GraphicsDevice.Viewport.Height / 2 - 90), Color.White);
+            _spriteBatch.DrawString(font, "W: Shoot Harpoon Towards Mouse", new Vector2(GraphicsDevice.Viewport.Width / 3, GraphicsDevice.Viewport.Height / 2 - 60), Color.White);
+            _spriteBatch.DrawString(font, "E: Charge In Mouse Direction (Damages Enemies)", new Vector2(GraphicsDevice.Viewport.Width / 3, GraphicsDevice.Viewport.Height / 2 - 30), Color.White);
+            _spriteBatch.DrawString(font, "R: Destroy and Take Place of Enemy in Range", new Vector2(GraphicsDevice.Viewport.Width / 3, GraphicsDevice.Viewport.Height / 2), Color.White);
+            _spriteBatch.DrawString(font, "Walk over an item to pick it up, click on its button to equip", new Vector2(GraphicsDevice.Viewport.Width / 3, GraphicsDevice.Viewport.Height / 2 + 30), Color.White);
+            _spriteBatch.DrawString(font, "Hat: Increases Rarity of Future Items", new Vector2(GraphicsDevice.Viewport.Width / 3, GraphicsDevice.Viewport.Height / 2 + 60), Color.White);
+            _spriteBatch.DrawString(font, "Armor: Increases Health", new Vector2(GraphicsDevice.Viewport.Width / 3, GraphicsDevice.Viewport.Height / 2 + 90), Color.White);
+            _spriteBatch.DrawString(font, "Weapon: Increases Player Bullet Damage", new Vector2(GraphicsDevice.Viewport.Width / 3, GraphicsDevice.Viewport.Height / 2 + 120), Color.White);
+            _spriteBatch.DrawString(font, "Legs: Increases Move Speed", new Vector2(GraphicsDevice.Viewport.Width / 3, GraphicsDevice.Viewport.Height / 2 + 150), Color.White);
+            _spriteBatch.DrawString(font, "Boots: Increases Turn Speed", new Vector2(GraphicsDevice.Viewport.Width / 3, GraphicsDevice.Viewport.Height / 2 + 180), Color.White);
+            ToMain.Draw(_spriteBatch, titleFont);
+            _spriteBatch.End();
+            return;
+        }
+
         for (int i = 0; i < itemsOnField.Count; i++)
         {
             GameObject item = itemsOnField[i];
             if (item.Get<Item>().drawName)
                 _spriteBatch.DrawString(font, item.Get<Item>().name, item.Get<Item>().drawCoords, item.Get<Item>().color);
         }
+        
+        _spriteBatch.DrawString(font, "Score: " + score, new Vector2(GraphicsDevice.Viewport.Width - 200, 30), Color.White);
 
         if (currentlyEquipped.ContainsKey(Item.Slot.Hat) && currentlyEquipped[Item.Slot.Hat] != null)
             _spriteBatch.DrawString(font, "Current Flag: " + currentlyEquipped[Item.Slot.Hat].Get<Item>().name, new Vector2(30, 30), currentlyEquipped[Item.Slot.Hat].Get<Item>().color);
@@ -372,9 +406,6 @@ public class FinalGame : Game
         
         player.Draw();
         harpoon.Draw();
-        //player.Renderer.Material.Diffuse = Color.White.ToVector3();
-
-        //plane.Renderer.Material.Diffuse = Color.White.ToVector3();
         for (int i = 0; i < enemies.Count; i++)
         {
             GameObject enemy = enemies[i];
@@ -394,19 +425,6 @@ public class FinalGame : Game
         }
         
         currentAOE?.Draw();
-        //particle draw
-        /*
-        GraphicsDevice.DepthStencilState = DepthStencilState.DepthRead;
-        particleEffect.CurrentTechnique = particleEffect.Techniques["particle"];
-        particleEffect.CurrentTechnique.Passes[0].Apply();
-        particleEffect.Parameters["ViewProj"].SetValue(camera.View *camera.Projection);
-        particleEffect.Parameters["World"].SetValue(Matrix.Identity);
-        particleEffect.Parameters["CamIRot"].SetValue(
-            Matrix.Invert(Matrix.CreateFromQuaternion(camera.Transform.Rotation)));
-        particleEffect.Parameters["Texture"].SetValue(particleTex);
-        particleManager.Draw(GraphicsDevice);
-        GraphicsDevice.RasterizerState = RasterizerState.CullNone;
-        */
         base.Draw(gameTime);
     }
 
@@ -430,6 +448,9 @@ public class FinalGame : Game
 
     private void spawnItem(Vector3 pos)
     {
+        score += 10;
+        hitSoundEffectInstance = hitSoundEffect.CreateInstance();
+        hitSoundEffectInstance.Play();
         GameObject item = new GameObject();
         pos.X += (random.NextSingle() - 0.5f) * 3;
         pos.Z += (random.NextSingle() - 0.5f) * 3;
@@ -623,10 +644,8 @@ public class FinalGame : Game
 
                 if (currentAOE.isActive())
                 {
-                    //if (currentAOE.Get<Collider>().Collides(enemies[i].Collider, out normal) &&
                     if (Vector3.Distance(currentAOE.Transform.Position, enemies[i].Transform.Position) <= 4.75f)
                     {
-                        //enemies[i].Tag = "iFrames";
                         if (enemies[i].Get<Health>().TakeDamage(50))
                         {
                             spawnItem(enemies[i].Transform.Position);
