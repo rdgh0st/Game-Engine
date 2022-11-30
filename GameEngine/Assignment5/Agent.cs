@@ -44,7 +44,8 @@ public class Agent : GameObject
 
         Texture2D texture2D = Content.Load<Texture2D>("Square");
         Renderer renderer = new Renderer(Content.Load<Model>("Sphere"), Transform, camera, Content, graphicsDevice,
-            light, "Shader", 2, 20, texture2D);
+            light, null, 2, 20, texture2D);
+        renderer.color = Color.LimeGreen.ToVector3();
         Add<Renderer>(renderer);
     }
     
