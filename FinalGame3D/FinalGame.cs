@@ -707,6 +707,7 @@ public class FinalGame : Game
                         if (!currentlyEquipped.ContainsKey(itemsOnField[i].Get<Item>().CurrentSlot))
                         {
                             currentlyEquipped.Add(itemsOnField[i].Get<Item>().CurrentSlot, itemsOnField[i]);
+                            ApplyUpgrades();
                         }
                         else
                         {
@@ -728,9 +729,7 @@ public class FinalGame : Game
                             guiElements.Add(trashButton);
                         }
                         itemsOnField[i].Remove<Collider>();
-                        Console.WriteLine("Equipped " + itemsOnField[i].Get<Item>().CurrentRarity + " " + itemsOnField[i].Get<Item>().CurrentSlot);
                         itemsOnField.RemoveAt(i);
-                        ApplyUpgrades();
                     }
                 }
             Thread.Sleep(16);

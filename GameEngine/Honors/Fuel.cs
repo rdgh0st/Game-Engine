@@ -14,16 +14,16 @@ public class Fuel : Sprite
         int seed = random.Next(0, 4);
         for (int i = 0; i < cars.Count; i++)
         {
-            if (cars[i].Position.Y <= 10 && cars[i].Position.X == 108 && seed == 0)
+            if (cars[i].Position.Y <= 200 && cars[i].Position.X == 108 && seed == 0)
             {
                 seed++;
-            } else if (cars[i].Position.Y <= 10 && cars[i].Position.X == 198 && seed == 1)
+            } else if (cars[i].Position.Y <= 200 && cars[i].Position.X == 198 && seed == 1)
             {
                 seed++;
-            } else if (cars[i].Position.Y <= 10 && cars[i].Position.X == 288 && seed == 2)
+            } else if (cars[i].Position.Y <= 200 && cars[i].Position.X == 288 && seed == 2)
             {
                 seed++;
-            } else if (cars[i].Position.Y <= 10 && cars[i].Position.X == 378 && seed == 3)
+            } else if (cars[i].Position.Y <= 200 && cars[i].Position.X == 378 && seed == 3)
             {
                 seed = 0;
             }

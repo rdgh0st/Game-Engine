@@ -198,7 +198,7 @@ public class Honors : Game
         {
             Fuel fuel = new Fuel(Content.Load<Texture2D>("gas"), cars);
             items.Add(fuel);
-            Thread.Sleep(2000);
+            Thread.Sleep(1500);
         }
     }
 }
